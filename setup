@@ -4,8 +4,10 @@ set -e
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOKS_DIR="$HOME/.claude/hooks"
 SKILLS_DIR="$HOME/.claude/skills"
+PRESET_DIR="$HOME/.config/mcp-presets"
+SCRIPTS_DIR="$HOME/.local/bin"
 
-mkdir -p "$HOOKS_DIR" "$SKILLS_DIR"
+mkdir -p "$HOOKS_DIR" "$SKILLS_DIR" "$PRESET_DIR" "$SCRIPTS_DIR"
 
 # Install hooks
 hooks_installed=()
@@ -25,6 +27,25 @@ for skill_dir in "$REPO_DIR"/skills/*/; do
   skills_linked+=("$name")
 done
 
+# Install statusline
+cp "$REPO_DIR/statusline.sh" "$HOME/.claude/statusline.sh"
+chmod +x "$HOME/.claude/statusline.sh"
+
+# Install mcp-presets (only copy if file doesn't already exist — don't overwrite customizations)
+presets_installed=()
+for preset in "$REPO_DIR"/mcp-presets/*.json; do
+  name="$(basename "$preset")"
+  target="$PRESET_DIR/$name"
+  if [[ ! -f "$target" ]]; then
+    cp "$preset" "$target"
+    presets_installed+=("$name")
+  fi
+done
+
+# Install mcp-use script
+cp "$REPO_DIR/scripts/mcp-use.sh" "$SCRIPTS_DIR/mcp-use"
+chmod +x "$SCRIPTS_DIR/mcp-use"
+
 echo "claude-stack installed."
 echo ""
 echo "  hooks -> ~/.claude/hooks/"
@@ -33,8 +54,21 @@ echo ""
 echo "  skills -> ~/.claude/skills/"
 for s in "${skills_linked[@]}"; do echo "    /$s"; done
 echo ""
+echo "  statusline -> ~/.claude/statusline.sh"
+echo ""
+if [[ ${#presets_installed[@]} -gt 0 ]]; then
+  echo "  mcp-presets -> ~/.config/mcp-presets/"
+  for p in "${presets_installed[@]}"; do echo "    $p"; done
+  echo ""
+fi
+echo "  mcp-use -> ~/.local/bin/mcp-use"
+echo ""
 echo "Next: add hooks to ~/.claude/settings.json"
 echo "      See settings.json.example for the full config."
 echo ""
 echo "  env    -> source ~/.claude/skills/claude-stack/env.sh.example"
 echo "            (or copy vars into settings.json under the \"env\" key)"
+echo ""
+echo "  browser -> mcp-use browser   (ABP: deterministic step-machine automation)"
+echo "  ui      -> mcp-use ui        (ABP + shadcn)"
+echo "  all     -> mcp-use all       (workspace + browser + shadcn)"
