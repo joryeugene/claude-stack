@@ -31,12 +31,12 @@ fi
 # Sync repo contents to the plugin cache
 # Only sync the directories and files that the plugin uses
 synced=0
-for item in skills hooks CLAUDE.md README.md setup verify statusline.sh scripts mcp-presets settings.json.example env.sh.example; do
+for item in skills hooks browse CLAUDE.md README.md setup verify statusline.sh scripts mcp-presets settings.json.example env.sh.example; do
   src="$REPO_DIR/$item"
   dst="$install_path/$item"
   if [[ -e "$src" ]]; then
     if [[ -d "$src" ]]; then
-      rsync -a --delete "$src/" "$dst/"
+      rsync -a --delete --exclude='node_modules' --exclude='bun.lock' "$src/" "$dst/"
     else
       cp "$src" "$dst"
     fi
