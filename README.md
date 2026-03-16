@@ -58,6 +58,10 @@ Set the environment variables (recommended): see `env.sh.example`.
 
 ### mcp-use
 
+Every MCP server loaded in a session costs context: tool schemas inject at startup, and every call response adds more. A single browser MCP adds thousands of tokens before any work begins. Loading six MCPs globally because you might need them is a different thing from loading two because this project needs them.
+
+Skills are loaded on demand and cost almost nothing. MCP servers load at session start and stay loaded. A project that needs browser automation should have the browser MCP; a backend CLI project should not. `mcp-use` makes per-project MCP composition a one-command operation rather than editing JSON by hand each time.
+
 `./setup` installs `mcp-use` to `~/.local/bin/mcp-use` and copies the presets to `~/.config/mcp-presets/` (only if they don't already exist, so local customizations are preserved).
 
 From any project directory:
@@ -224,7 +228,10 @@ Two ways to apply: source `env.sh.example` from your shell profile, or copy the 
 `statusline.sh` provides a compact Claude Code status display: current directory, git branch, context usage percentage, active plan, model, and subscription tier. Wire it into `settings.json`:
 
 ```json
-"statusCommand": "~/.claude/skills/claude-stack/statusline.sh"
+"statusLine": {
+  "type": "command",
+  "command": "bash ~/.claude/statusline.sh"
+}
 ```
 
 ---
