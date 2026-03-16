@@ -47,10 +47,20 @@ MCP servers are a different category. The three layers shape how Claude behaves 
 ## Install
 
 ```bash
+# install from GitHub (no clone needed)
+claude plugin marketplace add github:joryeugene/claude-stack
+claude plugin install claude-stack
+./setup    # installs mcp-use, mcp-presets, statusline
+```
+
+Or clone first for local development:
+
+```bash
 git clone https://github.com/joryeugene/claude-stack.git
 cd claude-stack
-claude plugin add .    # registers hooks + skills automatically
-./setup               # installs mcp-use, mcp-presets, statusline
+claude plugin marketplace add .
+claude plugin install claude-stack
+./setup
 ```
 
 Copy `CLAUDE.md` manually to `~/.claude/CLAUDE.md` (global) or your project root.
@@ -92,10 +102,10 @@ uv tool install keephive
 claude mcp add --scope user hive -- keephive mcp-serve
 ```
 
-To use `mcp-use` as a shell function instead of a binary, source it from your shell profile:
+To use `mcp-use` as a shell function instead of a binary, source it from your shell profile. After `./setup` runs, the script is at:
 
 ```bash
-source ~/.claude/skills/claude-stack/scripts/mcp-use.sh
+source ~/.local/bin/mcp-use
 ```
 
 Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear automatically in `mcp-use`.
@@ -121,6 +131,9 @@ Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear auto
        |
        +--- /debugging-protocol ----- something broken?
        |                              check data before theorizing
+       |
+       +--- /rca ------------------- bug fixed? make it structurally impossible
+       |                              root cause, prevention, BANNED entry
        |
        +--- /verification-workflow -- after every change:
        |                              prove it works, show evidence
@@ -177,6 +190,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/plan-mode` | Before significant work. Is this the right problem? Can we build it safely? |
 | `/tdd` | Writing any feature or test. Failing test first, always. |
 | `/debugging-protocol` | Something isn't working. Check data before theorizing. Schema first, trace back. |
+| `/rca` | Bug fixed but you want to ensure it never happens again. Root cause, prevention, BANNED entry. |
 | `/verification-workflow` | After any code change. Prove it works before moving on. |
 | `/performance` | Code is slow. Queries taking too long. Suspect N+1, O(n squared), or missing indexes. |
 | `/security-review` | Feature touches user input, auth, file paths, or database queries. |
