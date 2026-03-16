@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-stack",
+  "description": "Engineering discipline for Claude Code: philosophy, enforcement, and workflow in three layers.",
+  "owner": {
+    "name": "Jory Eugene",
+    "url": "https://github.com/joryeugene"
+  },
+  "plugins": [
+    {
+      "name": "claude-stack",
+      "description": "Philosophy (CLAUDE.md), enforcement (hooks), and workflow (skills) for Claude Code.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jory Eugene",
+        "url": "https://github.com/joryeugene"
+      },
+      "source": "./",
+      "category": "development",
+      "strict": false
+    }
+  ]
+}
