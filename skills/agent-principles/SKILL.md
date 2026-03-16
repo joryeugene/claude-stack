@@ -95,3 +95,47 @@ Answer these three questions before designing anything: a feature, a function, a
 ## The Floor
 
 Every project accumulates drift: unverified claims, duplicate utilities, incomplete implementations, and abandoned code paths. These principles encode the minimum floor beneath which no AI-assisted session should fall. They are not a checklist to scan before shipping. They are the operating mode from which every decision is made.
+
+## Skill Routing
+
+The claude-stack skills form a lifecycle. Each skill fires at a specific moment.
+
+### Project start
+
+| Moment | Skill | Trigger |
+|--------|-------|---------|
+| Scope unclear, wrong thing could be built | `/spec-writing` | Write problem, criteria, non-goals first |
+| Before any significant work | `/plan-mode` | CEO: right problem? Eng: safe to build? |
+
+### During development
+
+| Moment | Skill | Trigger |
+|--------|-------|---------|
+| Writing any feature or test | `/tdd` | Failing test first, always |
+| Something broken | `/debugging-protocol` | Check data before theorizing |
+| Bug fixed | `/rca` | Root cause, prevention, BANNED entry |
+| After every change | `/verification-workflow` | Prove it works, show evidence |
+| Code is slow | `/performance` | Measure, name the pattern, fix one thing |
+| Feature touches user input or auth | `/security-review` | Trace inputs, check named patterns |
+| AI session drift accumulating | `/code-hygiene` | Dead exports, duplicate logic, orphaned types |
+
+### Building UI
+
+| Moment | Skill | Trigger |
+|--------|-------|---------|
+| Before first line of UI code | `/impeccable-design` | Visual identity before implementation |
+| After UI changes | `/visual-verify` | Element-level proof, not full-page screenshots |
+| Testing behavior in browser | `/browser-testing` | Network, console, forms, multi-tab |
+
+### Shipping
+
+| Moment | Skill | Trigger |
+|--------|-------|---------|
+| Ready to merge | `/ship-pipeline` | Pre-flight review, test, commit, push, PR |
+
+### Always active (no invocation needed)
+
+| Skill | Role |
+|-------|------|
+| `/agent-principles` | Quality contract: evidence, schema-first, no hedging |
+| `/agent-orchestration` | Parallel agents for independent work streams |
