@@ -9,12 +9,7 @@ description: Deep browser testing with gstack. Use when testing UI behavior, ver
 
 ## Installation
 
-Requires [bun](https://bun.sh) v1.0+.
-
-```bash
-git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
-cd ~/.claude/skills/gstack && ./setup
-```
+The `browse` binary is bundled with claude-stack at `${CLAUDE_PLUGIN_ROOT}/skills/gstack/browse/dist/browse`. No separate installation needed. Requires [bun](https://bun.sh) v1.0+ (for the Playwright daemon).
 
 ## Command reference
 
