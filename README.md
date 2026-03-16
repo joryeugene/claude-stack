@@ -90,6 +90,8 @@ mcp-use browser workspace    # .mcp.json <- ABP + Google Workspace (merged)
 mcp-use all                  # .mcp.json <- everything
 ```
 
+These are the bundled presets. Add your own to `~/.config/mcp-presets/<name>.json` and they appear automatically. Each preset is a JSON file with an `mcpServers` object matching the `.mcp.json` format. Build presets for your stack and share them across projects.
+
 `best` is the foundation preset. It adds two servers that belong in every project:
 
 - **gitmcp** - fetches live documentation from any GitHub repo. Claude's training ends at August 2025; the libraries you use do not. Ask Claude to look up current docs and it reads them directly.
@@ -111,8 +113,6 @@ To use `mcp-use` as a shell function instead of a binary, source it from your sh
 ```bash
 source ~/.local/bin/mcp-use
 ```
-
-Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear automatically in `mcp-use`.
 
 ---
 
