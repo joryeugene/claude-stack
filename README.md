@@ -101,7 +101,7 @@ Set the environment variables (recommended): see `env.sh.example`.
 
 ## The hooks
 
-Two hooks ship with claude-stack. Both run on `PreToolUse`.
+Five hooks ship with claude-stack. All run on `PreToolUse`.
 
 | Hook | Blocks | Why |
 |------|--------|-----|
@@ -111,7 +111,7 @@ Two hooks ship with claude-stack. Both run on `PreToolUse`.
 | `block-no-verify.py` | `--no-verify` in git commands | Bypassing hooks defeats the enforcement layer. Fix the root cause instead. |
 | `block-tmp-files.py` | Writes to `/tmp/` and `mktemp` | Files in /tmp are silently lost on cleanup. Write to the project directory. |
 
-Register both in `~/.claude/settings.json`. See `settings.json.example`.
+Register all five in `~/.claude/settings.json`. See `settings.json.example`.
 
 ---
 
@@ -169,6 +169,10 @@ Key variables:
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `80` | Compacts at 80% context, not 95% |
 | `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` | `1` | Shell cwd persists across tool calls |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | `1` | No telemetry pings during sessions |
+| `BASH_MAX_TIMEOUT_MS` | `600000` | 10-minute ceiling for long-running operations |
+| `MAX_MCP_OUTPUT_TOKENS` | `50000` | Prevents MCP servers from flooding context with verbose output |
+| `DISABLE_COST_WARNINGS` | `1` | Silences cost warnings (useful on Max plan) |
+| `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY` | `1` | Silences periodic feedback survey prompts |
 
 Two ways to apply: source `env.sh.example` from your shell profile, or copy the variables into `~/.claude/settings.json` under the `env` key (recommended: settings.json approach applies at session start without shell config changes).
 

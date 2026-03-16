@@ -201,7 +201,7 @@ Claude Code Agent Teams: split file ownership, plan first, execute in parallel.
 
 #### BANNED - style (break prose quality)
 
-- Em-dashes in prose - neither U+2014 (Unicode em-dash) nor double-hyphen used as em-dash. Restructure the sentence. Example: "Every door promises enlightenment. I've walked through it." Not "...enlightenment - I've walked through it."
+- Em-dashes in prose - neither U+2014 (Unicode em-dash) nor double-hyphen used as em-dash. Restructure the sentence. Example: "Every door promises enlightenment. I've walked through it." Not "...enlightenment -- I've walked through it."
 - Fragments without subject+verb - complete sentences required (or imperative form).
 - Hedging language - no "should work", "might", "could be", "appears working", "looks correct".
 
