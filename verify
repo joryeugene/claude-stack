@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -e
+
+MARKETPLACE_FILE="$HOME/.claude/plugins/known_marketplaces.json"
+INSTALLED_FILE="$HOME/.claude/plugins/installed_plugins.json"
+PLUGIN_KEY="claude-stack@claude-stack"
+
+ok=true
+
+# Check marketplace registration
+if [[ -f "$MARKETPLACE_FILE" ]] && python3 -c "
+import json, sys
+data = json.load(open('$MARKETPLACE_FILE'))
+sys.exit(0 if 'claude-stack' in data else 1)
+" 2>/dev/null; then
+  echo "  marketplace: registered"
+else
+  echo "  marketplace: NOT registered"
+  echo "    fix: claude plugin marketplace add joryeugene/claude-stack"
+  ok=false
+fi
+
+# Check plugin installation
+if [[ -f "$INSTALLED_FILE" ]] && python3 -c "
+import json, sys
+data = json.load(open('$INSTALLED_FILE'))
+sys.exit(0 if '$PLUGIN_KEY' in data.get('plugins', {}) else 1)
+" 2>/dev/null; then
+  # Find install path
+  install_path=$(python3 -c "
+import json
+data = json.load(open('$INSTALLED_FILE'))
+entries = data['plugins']['$PLUGIN_KEY']
+print(entries[0]['installPath'])
+")
+
+  skill_count=$(ls "$install_path/skills/" 2>/dev/null | wc -l | tr -d ' ')
+  hook_count=$(ls "$install_path/hooks/"*.py 2>/dev/null | wc -l | tr -d ' ')
+
+  echo "  plugin:      installed ($skill_count skills, $hook_count hooks)"
+  echo "  path:        $install_path"
+else
+  echo "  plugin:      NOT installed"
+  echo "    fix: claude plugin install claude-stack"
+  ok=false
+fi
+
+echo ""
+if $ok; then
+  echo "claude-stack is ready. Start a new session to load skills and hooks."
+else
+  echo "claude-stack is not fully installed. Run the fix commands above."
+  exit 1
+fi

@@ -47,11 +47,19 @@ MCP servers are a different category. The three layers shape how Claude behaves 
 ## Install
 
 ```bash
-claude plugin marketplace add github:joryeugene/claude-stack
+claude plugin marketplace add joryeugene/claude-stack
 claude plugin install claude-stack
 ```
 
-That registers and installs the plugin. Hooks auto-register. Skills auto-load.
+Verify it worked (the CLI is silent on both success and failure):
+
+```bash
+git clone https://github.com/joryeugene/claude-stack.git
+cd claude-stack
+./verify
+```
+
+If `verify` shows all green, hooks and skills are loaded. Start a new Claude Code session to use them.
 
 Copy `CLAUDE.md` manually to `~/.claude/CLAUDE.md` (global) or your project root.
 
