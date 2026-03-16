@@ -7,67 +7,65 @@ description: Verify UI changes at element level before declaring any frontend wo
 
 Element-level proof for every UI change. Full-page screenshots miss the bugs that matter.
 
-## The Core Problem
+## With ABP (default)
 
-Full-page screenshots are 1400px wide. A 1px border clip, overflow cut, or color error is invisible at that resolution. ICLR 2025 research confirms MLLMs drop 11-24 percentage points of accuracy on small visual details. The fix: crop to the region of interest before evaluating.
+ABP returns before and after screenshots on every action automatically. No extra calls needed.
 
-## Required Procedure
+Every navigate, click, type, or scroll returns:
 
-For every UI component change, follow this sequence:
-
-### Step 1: Get element refs from the page
-
-```
-browser_snapshot
-```
-
-Find the ref for the changed component in the a11y tree output. Refs look like `ref="s1e2"` or similar short strings.
-
-### Step 2: Element-level screenshot (primary path)
-
-```
-browser_take_screenshot(element="description of element", ref="<ref from snapshot>")
+```json
+{
+  "screenshot_before": { "data": "base64...", "width": 1280, "height": 720 },
+  "screenshot_after":  { "data": "base64...", "width": 1280, "height": 720 },
+  "events": [],
+  "timing": { "duration_ms": 50 }
+}
 ```
 
-This auto-crops to exactly the element bounds. Read the result carefully:
+Use `screenshot_after` as your verification evidence. Request element markup to see interactive regions:
 
-- Are all borders fully visible (top, bottom, left, right arcs)?
-- Is the background color correct?
-- Is text not truncated or overflowing?
-- Is spacing correct above and below?
+```
+browser_screenshot with markup: "interactive"
+```
 
-### Step 3: Declare done only after element screenshot confirms correct rendering
+This draws bounding boxes around clickable and typeable elements directly in the image.
 
-If the element screenshot shows the bug is fixed, proceed.
-If no ref is available (element not in a11y tree), use the ImageMagick fallback below.
+### What to check in the screenshot
 
-## ImageMagick Fallback
+- Are borders fully visible on all four sides?
+- Is background color correct?
+- Is text not truncated or overflowing its container?
+- Is spacing correct on all sides?
+- Does the component look the same before and after unrelated actions?
 
-When the element is not in the a11y tree:
+### When you need a tighter crop
+
+ABP returns full-viewport screenshots. For a 1px border or small component, get the bounding box first:
+
+```
+browser_execute: document.querySelector('.your-selector').getBoundingClientRect()
+```
+
+Request a screenshot with a grid overlay to verify exact coordinates:
+
+```
+browser_screenshot with markup: ["grid", "clickable"]
+```
+
+Crop and zoom with ImageMagick if needed:
 
 ```bash
-# Get bounding box via JS
-browser_evaluate: document.querySelector('.your-selector').getBoundingClientRect()
-
-# Capture full page
-browser_take_screenshot(fullPage=false)
-
-# Crop and zoom 3x with ImageMagick
-magick screenshot.png -crop WxH+X+Y +repage -resize 300% zoomed.png
-
-# Read the cropped result
-Read zoomed.png
+magick screenshot.webp -crop WxH+X+Y +repage -resize 300% zoomed.png
 ```
 
-Replace W/H with element width/height and X/Y with top-left position from getBoundingClientRect.
+## Without ABP (Playwright fallback)
 
-## Anti-Patterns
+If running with Playwright MCP instead of ABP, the manual path applies:
 
-- Taking a full-page screenshot and saying "looks good." A 1px clipping, 1px border cut, or overflow issue is invisible at 1400px width.
-- Declaring a component fixed without a screenshot at element resolution.
-- Using only text-based assertions for visual correctness. The element screenshot is the evidence.
-- Skipping the fallback when the element is not in the a11y tree. The ImageMagick path exists for this reason.
+1. `browser_snapshot` to get the a11y tree and find the `ref` for your component
+2. `browser_take_screenshot(element="...", ref="<ref>")` to crop to element bounds
+3. If no ref exists: `browser_evaluate getBoundingClientRect` then ImageMagick crop
 
-## The Floor
+## The floor
 
-Every UI fix is either visually confirmed or assumed. The ViCrop principle eliminates that assumption: crop to the element before evaluating. Full-page screenshots are documentation of the surface, not evidence of correctness. The element-level screenshot is the minimum proof that a visual change produced the intended result.
+Every UI fix is either visually confirmed or assumed. ABP eliminates the assumption by returning the post-action state automatically. Read `screenshot_after`. If it shows the correct state, the work is done.

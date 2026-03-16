@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "agent-browser-protocol", "--mcp"],
+      "env": {
+        "ABP_HEADLESS": "${ABP_HEADLESS:-}"
+      }
+    }
+  }
+}

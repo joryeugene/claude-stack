@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "workspace": {
+      "command": "uvx",
+      "args": [
+        "workspace-mcp",
+        "--tools", "docs", "drive", "calendar", "sheets",
+        "--single-user",
+        "--transport", "stdio"
+      ],
+      "env": {
+        "GOOGLE_CLIENT_SECRET_PATH": "~/.config/workspace-mcp/client_secret.json"
+      }
+    }
+  }
+}

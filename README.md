@@ -20,6 +20,11 @@ Skills alone make Claude better at tasks. This makes Claude better at engineerin
              ./setup installs all three
 ```
 
+Plus two optional utilities that ship alongside:
+
+- `mcp-presets/` + `mcp-use` - one-command `.mcp.json` setup for any project
+- `scripts/mcp-use.sh` - the shell function, sourceable or executable directly
+
 **Philosophy** (`CLAUDE.md`) defines how Claude reasons: the Tripod (antifragile, simple, research-first), the Contract (total saturation, no shortcuts), and the Error Recovery Protocol.
 
 **Enforcement** (`hooks/`) makes rules structural. A rule in CLAUDE.md is a suggestion. A hook is a hard constraint. The wrong pattern becomes structurally impossible, not just discouraged.
@@ -51,6 +56,28 @@ cd ~/.claude/skills/claude-stack
 Then register the hooks in `~/.claude/settings.json`. See `settings.json.example`.
 
 Set the environment variables (recommended): see `env.sh.example`.
+
+### mcp-use
+
+`./setup` installs `mcp-use` to `~/.local/bin/mcp-use` and copies the presets to `~/.config/mcp-presets/` (only if they don't already exist, so local customizations are preserved).
+
+From any project directory:
+
+```bash
+mcp-use                      # list available presets
+mcp-use browser              # .mcp.json <- ABP (deterministic browser automation)
+mcp-use ui                   # .mcp.json <- ABP + shadcn
+mcp-use browser workspace    # .mcp.json <- ABP + Google Workspace (merged)
+mcp-use all                  # .mcp.json <- everything
+```
+
+To use as a shell function instead of a binary, source it from your shell profile:
+
+```bash
+source ~/.claude/skills/claude-stack/scripts/mcp-use.sh
+```
+
+Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear automatically in `mcp-use`.
 
 ---
 
@@ -130,7 +157,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/testing-strategy` | Writing tests. Make them fail when code breaks. |
 | `/code-hygiene` | Reviewing AI-session debt: dead exports, duplicate logic, orphaned types. |
 | `/impeccable-design` | Starting UI work. Visual identity before writing code. |
-| `/visual-verify` | After UI changes. Element-level proof, not full-page screenshots. |
+| `/visual-verify` | After UI changes. ABP returns before/after automatically; this skill tells you what to read. |
 | `/pre-ship` | Before shipping. Paranoid check for the bugs CI misses. |
 | `/ship-pipeline` | Shipping. Merge, test, review, commit, push, PR. |
 
@@ -213,6 +240,25 @@ description: One sentence. Claude uses this to decide when to load the skill.
 
 # Skill content here
 ```
+
+---
+
+## Browser automation
+
+The `browser` preset ships [Agent Browser Protocol](https://github.com/theredsix/agent-browser-protocol) (ABP), a Chromium fork with MCP baked into the engine.
+
+Why ABP instead of Playwright or chrome-devtools:
+
+- **Step machine semantics**: JS and virtual time freeze between agent actions. The page waits for the agent, not the other way around.
+- **Automatic screenshots**: every action returns before and after screenshots. No extra calls.
+- **Native input**: events go through Chromium's actual input system, not CDP synthetic dispatch.
+- **~100ms overhead per action**: the bottleneck is the LLM, not the browser.
+
+```bash
+mcp-use browser   # adds ABP to .mcp.json
+```
+
+Set `ABP_HEADLESS=1` to run without a visible window (CI, background verification).
 
 ---
 

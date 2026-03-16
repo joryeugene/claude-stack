@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "shadcn-ui": {
+      "command": "npx",
+      "args": ["-y", "shadcn-ui-mcp-server"]
+    },
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "agent-browser-protocol", "--mcp"],
+      "env": {
+        "ABP_HEADLESS": "${ABP_HEADLESS:-}"
+      }
+    }
+  }
+}
