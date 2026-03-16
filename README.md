@@ -127,6 +127,7 @@ Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear auto
        |   (building UI?)
        +--- /impeccable-design ------ visual identity before a line of code
        +--- /visual-verify ---------- element-level proof after UI changes
+       +--- /browser-testing -------- network, console, forms, multi-tab
        |
    ready to ship
        |
@@ -177,7 +178,8 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/testing-strategy` | Writing tests. Make them fail when code breaks. |
 | `/code-hygiene` | Reviewing AI-session debt: dead exports, duplicate logic, orphaned types. |
 | `/impeccable-design` | Starting UI work. Visual identity before writing code. |
-| `/visual-verify` | After UI changes. ABP returns before/after automatically; this skill tells you what to read. |
+| `/visual-verify` | After UI changes. ABP returns a screenshot on every action automatically; this skill tells you what to read. |
+| `/browser-testing` | Deep browser testing with ABP. Network inspection, console errors, forms, multi-tab, authenticated API calls. |
 | `/pre-ship` | Before shipping. Paranoid check for the bugs CI misses. |
 | `/ship-pipeline` | Shipping. Merge, test, review, commit, push, PR. |
 
@@ -273,7 +275,7 @@ The `browser` preset ships [Agent Browser Protocol](https://github.com/theredsix
 Why ABP instead of Playwright or chrome-devtools:
 
 - **Step machine semantics**: JS and virtual time freeze between agent actions. The page waits for the agent, not the other way around.
-- **Automatic screenshots**: every action returns before and after screenshots. No extra calls.
+- **Automatic screenshots**: every action returns a screenshot. No extra calls needed.
 - **Native input**: events go through Chromium's actual input system, not CDP synthetic dispatch.
 - **~100ms overhead per action**: the bottleneck is the LLM, not the browser.
 
