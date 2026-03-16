@@ -47,29 +47,27 @@ MCP servers are a different category. The three layers shape how Claude behaves 
 ## Install
 
 ```bash
-git clone https://github.com/joryeugene/claude-stack.git
-cd claude-stack
-claude plugin marketplace add .
+claude plugin marketplace add github:joryeugene/claude-stack
 claude plugin install claude-stack
-./setup
 ```
 
-That's four commands:
-
-1. Clone the repo
-2. Register it as a local marketplace
-3. Install the plugin (hooks + skills auto-register)
-4. Run `./setup` — installs `mcp-use`, copies presets to `~/.config/mcp-presets/`, installs statusline
+That registers and installs the plugin. Hooks auto-register. Skills auto-load.
 
 Copy `CLAUDE.md` manually to `~/.claude/CLAUDE.md` (global) or your project root.
 
 Set the environment variables (recommended): copy the vars from `settings.json.example` into `~/.claude/settings.json` under the `env` key. See `env.sh.example` for descriptions.
 
-### mcp-use
+### mcp-use (optional)
 
-Every MCP server loaded in a session costs context: tool schemas inject at startup, and every call response adds more. A single browser MCP adds thousands of tokens before any work begins. Loading six MCPs globally because you might need them is a different thing from loading two because this project needs them.
+`mcp-use` makes per-project MCP composition a one-command operation. Every MCP server loaded in a session costs context: tool schemas inject at startup and every call response adds more. Loading six MCPs globally because you might need them is a different thing from loading two because this project needs them. Skills are loaded on demand and cost almost nothing. MCPs are not.
 
-Skills are loaded on demand and cost almost nothing. MCP servers load at session start and stay loaded. A project that needs browser automation should have the browser MCP; a backend CLI project should not. `mcp-use` makes per-project MCP composition a one-command operation rather than editing JSON by hand each time.
+To install `mcp-use`, presets, and the statusline:
+
+```bash
+git clone https://github.com/joryeugene/claude-stack.git
+cd claude-stack
+./setup
+```
 
 `./setup` installs `mcp-use` to `~/.local/bin/mcp-use` and copies the presets to `~/.config/mcp-presets/` (only if they don't already exist, so local customizations are preserved).
 
