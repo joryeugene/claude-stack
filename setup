@@ -2,36 +2,16 @@
 set -e
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
-HOOKS_DIR="$HOME/.claude/hooks"
-SKILLS_DIR="$HOME/.claude/skills"
 PRESET_DIR="$HOME/.config/mcp-presets"
 SCRIPTS_DIR="$HOME/.local/bin"
 
-mkdir -p "$HOOKS_DIR" "$SKILLS_DIR" "$PRESET_DIR" "$SCRIPTS_DIR"
-
-# Install hooks
-hooks_installed=()
-for hook in "$REPO_DIR"/hooks/*.py; do
-  name="$(basename "$hook")"
-  cp "$hook" "$HOOKS_DIR/$name"
-  chmod +x "$HOOKS_DIR/$name"
-  hooks_installed+=("$name")
-done
-
-# Symlink skills
-skills_linked=()
-for skill_dir in "$REPO_DIR"/skills/*/; do
-  name="$(basename "$skill_dir")"
-  target="$SKILLS_DIR/$name"
-  ln -snf "$skill_dir" "$target"
-  skills_linked+=("$name")
-done
+mkdir -p "$PRESET_DIR" "$SCRIPTS_DIR"
 
 # Install statusline
 cp "$REPO_DIR/statusline.sh" "$HOME/.claude/statusline.sh"
 chmod +x "$HOME/.claude/statusline.sh"
 
-# Install mcp-presets (only copy if file doesn't already exist — don't overwrite customizations)
+# Install mcp-presets (only copy if file doesn't already exist -- don't overwrite customizations)
 presets_installed=()
 for preset in "$REPO_DIR"/mcp-presets/*.json; do
   name="$(basename "$preset")"
@@ -46,13 +26,7 @@ done
 cp "$REPO_DIR/scripts/mcp-use.sh" "$SCRIPTS_DIR/mcp-use"
 chmod +x "$SCRIPTS_DIR/mcp-use"
 
-echo "claude-stack installed."
-echo ""
-echo "  hooks -> ~/.claude/hooks/"
-for h in "${hooks_installed[@]}"; do echo "    $h"; done
-echo ""
-echo "  skills -> ~/.claude/skills/"
-for s in "${skills_linked[@]}"; do echo "    /$s"; done
+echo "claude-stack setup complete."
 echo ""
 echo "  statusline -> ~/.claude/statusline.sh"
 echo ""
@@ -63,11 +37,11 @@ if [[ ${#presets_installed[@]} -gt 0 ]]; then
 fi
 echo "  mcp-use -> ~/.local/bin/mcp-use"
 echo ""
-echo "Next: add hooks to ~/.claude/settings.json"
-echo "      See settings.json.example for the full config."
-echo ""
-echo "  env    -> source ~/.claude/skills/claude-stack/env.sh.example"
-echo "            (or copy vars into settings.json under the \"env\" key)"
+echo "Next steps:"
+echo "  1. Copy CLAUDE.md to ~/.claude/CLAUDE.md (global) or your project root"
+echo "  2. Install the plugin: claude plugin add $(pwd)"
+echo "  3. Set env vars: copy into ~/.claude/settings.json under the \"env\" key"
+echo "     (see settings.json.example)"
 echo ""
 echo "  browser -> mcp-use browser   (ABP: deterministic step-machine automation)"
 echo "  ui      -> mcp-use ui        (ABP + shadcn)"

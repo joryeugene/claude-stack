@@ -17,7 +17,7 @@ Skills alone make Claude better at tasks. This makes Claude better at engineerin
         |                 |                 |
         +-----------------+-----------------+
                           |
-             ./setup installs all three
+              plugin installs all three
 ```
 
 MCP servers extend what Claude can reach. `mcp-use` manages them per-project.
@@ -47,14 +47,15 @@ MCP servers are a different category. The three layers shape how Claude behaves 
 ## Install
 
 ```bash
-git clone https://github.com/joryeugene/claude-stack.git ~/.claude/skills/claude-stack
-cd ~/.claude/skills/claude-stack
-./setup
+git clone https://github.com/joryeugene/claude-stack.git
+cd claude-stack
+claude plugin add .    # registers hooks + skills automatically
+./setup               # installs mcp-use, mcp-presets, statusline
 ```
 
-Then register the hooks in `~/.claude/settings.json`. See `settings.json.example`.
+Copy `CLAUDE.md` manually to `~/.claude/CLAUDE.md` (global) or your project root.
 
-Set the environment variables (recommended): see `env.sh.example`.
+Set the environment variables (recommended): copy the vars from `settings.json.example` into `~/.claude/settings.json` under the `env` key. See `env.sh.example` for descriptions.
 
 ### mcp-use
 
@@ -107,19 +108,28 @@ Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear auto
   project starts
        |
        v
-   /plan-mode  ------- CEO: is this the right problem?
-       |                Eng: can we build it safely?
+   /spec-writing ------- scope unclear? write problem, criteria, non-goals first
+       |
+       v
+   /plan-mode  --------- CEO: is this the right problem?
+       |                 Eng: can we build it safely?
        |
    coding begins
        |
+       +--- /tdd -------------------- writing any feature or test?
+       |                              failing test first, always
+       |
        +--- /debugging-protocol ----- something broken?
-       |                              schema first, trace back
+       |                              check data before theorizing
        |
        +--- /verification-workflow -- after every change:
        |                              prove it works, show evidence
        |
-       +--- /testing-strategy ------- writing tests?
-       |                              make them catch real bugs
+       +--- /performance ------------ slow? queries taking too long?
+       |                              measure, name the pattern, fix one thing
+       |
+       +--- /security-review -------- feature touches user input or auth?
+       |                              trace inputs, check named patterns
        |
        +--- /code-hygiene ----------- AI sessions are stateless.
        |                              keep the codebase clean.
@@ -129,19 +139,13 @@ Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear auto
        +--- /visual-verify ---------- element-level proof after UI changes
        +--- /browser-testing -------- network, console, forms, multi-tab
        |
-   ready to ship
-       |
        v
-   /pre-ship ---------- paranoid check: what does CI miss?
-       |
-       v
-   /ship-pipeline ----- merge, test, review, commit, push, PR
+   /ship-pipeline ------ pre-flight review, merge, test, commit, push, PR
 
 
   always active (no invocation needed)
 
    /agent-principles      the quality contract: evidence, schema-first, no hedging
-   /hooks-guide           teaches you to build your own enforcement layer
    /agent-orchestration   parallel agents for independent work streams
 ```
 
@@ -149,17 +153,15 @@ Add your own presets to `~/.config/mcp-presets/<name>.json` and they appear auto
 
 ## The hooks
 
-Five hooks ship with claude-stack. All run on `PreToolUse`.
+Five hooks ship with claude-stack. All fire on `PreToolUse`. The plugin registers them automatically. For manual setup, see `settings.json.example`.
 
-| Hook | Blocks | Why |
-|------|--------|-----|
-| `block-unicode-dashes.py` | Em-dashes, en-dashes, double-hyphen substitutes in written files | Prose quality rule made structurally impossible |
-| `block-co-authored-by.py` | Claude attribution lines in git commits | Claude Code hardcodes this into every commit message. This hook removes it. |
-| `block-git-stash.py` | `git stash` in any form | Destroys other agents' working state. Structurally absent, not just discouraged. |
-| `block-no-verify.py` | `--no-verify` in git commands | Bypassing hooks defeats the enforcement layer. Fix the root cause instead. |
-| `block-tmp-files.py` | Writes to `/tmp/` and `mktemp` | Files in /tmp are silently lost on cleanup. Write to the project directory. |
-
-Register all five in `~/.claude/settings.json`. See `settings.json.example`.
+| Hook | Matcher | Blocks | Why |
+|------|---------|--------|-----|
+| `block-unicode-dashes.py` | `Write\|Edit\|MultiEdit\|Bash` | Em-dashes, en-dashes, double-hyphen substitutes | Prose quality rule made structurally impossible |
+| `block-co-authored-by.py` | `Bash` | Claude attribution lines in git commits | Claude Code hardcodes this into every commit message. This hook removes it. |
+| `block-git-stash.py` | `Bash` | `git stash` in any form | Destroys other agents' working state. Structurally absent, not just discouraged. |
+| `block-no-verify.py` | `Bash` | `--no-verify` in git commands | Bypassing hooks defeats the enforcement layer. Fix the root cause instead. |
+| `block-tmp-files.py` | `Write\|Bash` | Writes to `/tmp/` and `mktemp` | Files in /tmp are silently lost on cleanup. Write to the project directory. |
 
 ---
 
@@ -167,21 +169,22 @@ Register all five in `~/.claude/settings.json`. See `settings.json.example`.
 
 Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude Code.
 
-| Skill | When to use |
-|-------|-------------|
-| `/agent-principles` | Always active reference. The quality contract. |
-| `/hooks-guide` | Learning to write your own enforcement hooks. |
-| `/agent-orchestration` | Parallel agents for independent work streams. Task tool and agent teams. |
-| `/plan-mode` | Before any significant work. CEO mode or Eng mode. |
-| `/debugging-protocol` | Something isn't working. Schema first, trace back. |
-| `/verification-workflow` | After a code change. Prove it works before moving on. |
-| `/testing-strategy` | Writing tests. Make them fail when code breaks. |
-| `/code-hygiene` | Reviewing AI-session debt: dead exports, duplicate logic, orphaned types. |
-| `/impeccable-design` | Starting UI work. Visual identity before writing code. |
-| `/visual-verify` | After UI changes. ABP returns a screenshot on every action automatically; this skill tells you what to read. |
-| `/browser-testing` | Deep browser testing with ABP. Network inspection, console errors, forms, multi-tab, authenticated API calls. |
-| `/pre-ship` | Before shipping. Paranoid check for the bugs CI misses. |
-| `/ship-pipeline` | Shipping. Merge, test, review, commit, push, PR. |
+| Skill | Reach for it when... |
+|-------|----------------------|
+| `/agent-principles` | Always active. The quality contract: evidence-first, no hedging. |
+| `/agent-orchestration` | You have 2+ independent tasks that can run in parallel. |
+| `/spec-writing` | Scope is unclear or the wrong thing might get built. Write problem, criteria, non-goals first. |
+| `/plan-mode` | Before significant work. Is this the right problem? Can we build it safely? |
+| `/tdd` | Writing any feature or test. Failing test first, always. |
+| `/debugging-protocol` | Something isn't working. Check data before theorizing. Schema first, trace back. |
+| `/verification-workflow` | After any code change. Prove it works before moving on. |
+| `/performance` | Code is slow. Queries taking too long. Suspect N+1, O(n squared), or missing indexes. |
+| `/security-review` | Feature touches user input, auth, file paths, or database queries. |
+| `/code-hygiene` | AI-session debt accumulating: dead exports, duplicate logic, orphaned types. |
+| `/impeccable-design` | Starting UI work. Visual identity before writing a line of code. |
+| `/visual-verify` | After UI changes. Element-level proof before declaring done. |
+| `/browser-testing` | Deep browser testing with ABP. Network, console, forms, multi-tab, authenticated API calls. |
+| `/ship-pipeline` | Ready to ship. Pre-flight review, merge, test, commit, push, PR. |
 
 ---
 
@@ -240,31 +243,33 @@ Two ways to apply: source `env.sh.example` from your shell profile, or copy the 
 
 ## Adding your own hooks
 
-The `/hooks-guide` skill covers this in full. The short version:
-
 1. Write a Python script that reads tool input from stdin (JSON)
 2. Print a block decision to stderr and exit 2 to block the tool call
 3. Exit 0 to allow it
-4. Register in `~/.claude/settings.json` under `hooks > PreToolUse`
+4. Add an entry to `hooks/hooks.json` with the matcher and command
 
-The `block-unicode-dashes.py` hook is a readable reference for the pattern.
+`block-unicode-dashes.py` is a readable reference implementation. The matcher field scopes the hook to specific tools: `Write|Edit|MultiEdit` for file operations, `Bash` for shell commands, or combinations like `Write|Bash`.
 
 ---
 
 ## Extending with more skills
 
-Drop any directory with a `SKILL.md` into `skills/`. Re-run `./setup` to symlink it.
+Drop any directory with a `SKILL.md` into `skills/`. The plugin auto-discovers it.
 
 Skill files are markdown with a YAML frontmatter block:
 
 ```markdown
 ---
 name: my-skill
-description: One sentence. Claude uses this to decide when to load the skill.
+description: When to reach for this skill. Written as a trigger condition, not a topic name.
 ---
 
 # Skill content here
 ```
+
+The `description` field is what Claude matches against task context. Write it as a trigger condition: "Use when X" or "Reach for this when Y." A description that names the symptom ("something is slow", "scope is unclear") will fire at the right moment. A description that names the topic ("performance optimization") may not.
+
+For custom skills outside this repo, create a second plugin directory and register it separately with `claude plugin add ./my-skills`.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ship-pipeline
-description: Automated ship pipeline. Merge, test, review, commit, push, PR in one command.
+description: Use when ready to ship. Runs the full release pipeline: merge, test, pre-landing review, commit, push, PR. Includes pre-ship paranoid diff review.
 disable-model-invocation: true
 ---
 
@@ -82,13 +82,32 @@ If tests pass: note the counts briefly and continue.
 
 ## Step 5: Pre-landing review
 
-Run the `/pre-ship` logic inline:
+```bash
+git diff origin/main
+```
 
-1. `git diff origin/main`
-2. Read project's `## Review Checklist` from CLAUDE.md
-3. Two-pass review (CRITICAL then INFORMATIONAL)
-4. If critical issues: AskUserQuestion for each (Fix / Acknowledge / Skip)
-5. If fixes applied: re-run tests before continuing
+Read the FULL diff before commenting. Do not flag issues already addressed in the diff.
+
+Read the project's CLAUDE.md for a `## Review Checklist` section. If found, use it as the primary checklist. If not found, use the default below.
+
+**Default checklist:**
+
+Pass 1 (CRITICAL):
+- SQL/data safety: raw SQL injection, missing parameterization, destructive operations without confirmation
+- Trust boundaries: unsanitized user input flowing into queries, file paths, or shell commands
+- Race conditions: concurrent access to shared state, TOCTOU bugs
+- Resource leaks: unclosed connections, unjoined tasks, missing cleanup
+
+Pass 2 (INFORMATIONAL):
+- Dead code introduced by this diff
+- Magic numbers or string coupling
+- Missing error handling (unwrap in Rust, unhandled promises in JS, bare except in Python)
+- Test gaps: new code paths without corresponding tests
+- Consistency: does this diff follow patterns established elsewhere?
+
+For each CRITICAL finding: use AskUserQuestion. Show the problem and fix. Options: A) Fix it now, B) Acknowledge and ship anyway, C) False positive.
+
+If fixes applied: re-run tests before continuing.
 
 If no critical issues: continue.
 

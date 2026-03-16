@@ -1,0 +1,13 @@
+{
+  "name": "claude-stack",
+  "version": "1.0.0",
+  "description": "Engineering discipline for Claude Code. Philosophy, enforcement, and workflow in three layers.",
+  "author": {
+    "name": "Jory Eugene",
+    "url": "https://github.com/joryeugene"
+  },
+  "homepage": "https://github.com/joryeugene/claude-stack",
+  "repository": "https://github.com/joryeugene/claude-stack",
+  "license": "MIT",
+  "keywords": ["claude-code", "engineering", "tdd", "hooks", "workflow"]
+}
