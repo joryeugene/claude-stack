@@ -13,9 +13,15 @@ inp = data.get("tool_input", {})
 
 if tool == "Bash":
     cmd = inp.get("command", "")
-    if "co-authored-by" in cmd.lower():
+    if ("co-authored-by" in cmd.lower()
+            or "generated with claude code" in cmd.lower()
+            or "claude.ai/claude-code" in cmd.lower()):
         print(json.dumps({
             "decision": "block",
-            "reason": "Co-Authored-By is banned in commits. Remove the Co-Authored-By line and commit without it."
+            "reason": (
+                "Claude attribution is banned in commits. Remove any of: "
+                "Co-Authored-By lines, 'Generated with Claude Code', or claude.ai/claude-code links. "
+                "Commit without attribution."
+            )
         }), file=sys.stderr)
         sys.exit(2)

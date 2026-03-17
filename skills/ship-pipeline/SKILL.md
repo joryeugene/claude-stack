@@ -10,7 +10,7 @@ The full release pipeline in one command. Merge, test, review, commit, push, PR.
 
 **Only stop for:**
 
-- On `main` branch (abort)
+- On `main` branch (ask: commit to main and push, or abort to create a feature branch)
 - Merge conflicts that can't be auto-resolved
 - Test failures
 - Critical review findings where the user chooses to fix
@@ -30,7 +30,21 @@ The full release pipeline in one command. Merge, test, review, commit, push, PR.
 git branch --show-current
 ```
 
-If on `main` or `master`: abort with "Ship from a feature branch."
+If on `main` or `master`: warn and ask the user what to do.
+
+```
+You are on main. This pipeline ends with a PR, which makes no sense on main.
+
+Options:
+  a) Commit staged changes to main and push (no PR)
+  b) Abort -- create a feature branch first
+
+Which? (a/b)
+```
+
+If user chooses **a**: skip Step 3 (merge) and Step 8 (PR creation). Run tests, review, commit, push to main. Done.
+
+If user chooses **b**: abort. Do not touch staged changes.
 
 ```bash
 git status

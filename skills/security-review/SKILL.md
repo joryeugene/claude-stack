@@ -210,6 +210,42 @@ TOCTOU appears in: balance checks before charges, inventory checks before reserv
 
 ---
 
+### Dependency Vulnerabilities
+
+Known CVEs in installed packages. Supply chain attacks are now the most common source of
+real-world security incidents. Application code can be flawless while a dependency ships
+a critical vulnerability.
+
+Run the audit for your ecosystem before every release:
+
+```bash
+# Node.js / npm
+npm audit
+# CI-friendly version (non-zero exit on high+ severity):
+npx audit-ci --high
+
+# Python
+pip-audit
+# install: uv tool install pip-audit
+
+# Rust
+cargo audit
+# install: cargo install cargo-audit
+
+# Go
+govulncheck ./...
+# install: go install golang.org/x/vuln/cmd/govulncheck@latest
+```
+
+Reading the output: each finding shows the package, the CVE identifier, the severity
+(critical/high/moderate/low), and the fixed version. Upgrade to the fixed version.
+
+Do not dismiss a CVE as "not applicable" without confirming the vulnerable code path is
+unreachable from your application. Treat any critical or high severity finding as a
+hard blocker before shipping.
+
+---
+
 ## Checklist
 
 Before shipping any feature touching user input, auth, files, or databases:
@@ -222,6 +258,7 @@ Before shipping any feature touching user input, auth, files, or databases:
 - [ ] Shared state mutations are atomic (no check-then-act on mutable shared state)
 - [ ] User content rendered to HTML is escaped or sanitized (no raw `innerHTML`, `dangerouslySetInnerHTML`)
 - [ ] State-changing endpoints validate CSRF tokens (or use header-based auth, not cookies)
+- [ ] Dependency audit run (`npm audit` / `pip-audit` / `cargo audit` / `govulncheck`). No critical or high severity findings unaddressed.
 
 ---
 

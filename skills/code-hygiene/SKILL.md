@@ -31,6 +31,22 @@ After finishing work:
 - Handle or log all exceptions (never empty catch blocks).
 - Remove unused imports.
 
+## Before Closing This Session
+
+Run this before ending any session where code was written. Takes two minutes. Prevents the
+next session from inheriting noise that compounds.
+
+1. **Unused imports**: search for imports you added that are no longer referenced. Remove them.
+2. **Dead variables**: any variable declared but never read in code you touched this session.
+3. **Empty catch blocks**: any exception silently swallowed in code you wrote or modified. Log it or rethrow it.
+4. **TODO comments**: any `TODO` or `FIXME` you added this session. Convert to a tracked issue or remove.
+5. **Hardcoded values**: any magic strings or numbers that should be named constants or config.
+6. **Debug output**: any `console.log`, `print`, `logger.debug` left in production code paths.
+7. **Config drift**: any environment variable now used in code but not documented, or documented but removed.
+
+These seven checks catch the most common residue of a working session before it becomes the
+starting state of the next one.
+
 ## The Weekly Sweep
 
 Combine automated tools with manual review:
