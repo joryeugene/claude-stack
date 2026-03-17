@@ -114,8 +114,7 @@ The claude-stack skills form a lifecycle. Each skill fires at a specific moment.
 |--------|-------|---------|
 | Starting implementation from a plan | `/tdd` + `/verification-workflow` | Failing test first, implement, prove it works. Repeat per task. For 3+ independent tasks, add `/agent-orchestration` -- split by file ownership, run in parallel. |
 | Writing any feature or test | `/tdd` | Failing test first, always |
-| Something broken | `/debugging-protocol` | Check data before theorizing |
-| Bug fixed | `/rca` | Root cause, prevention, BANNED entry |
+| Something broken, or bug just fixed | `/debugging-protocol` | Phase 1: find and fix. Phase 2: make recurrence structurally impossible. |
 | After every change | `/verification-workflow` | Prove it works, show evidence |
 | Code is slow | `/performance` | Measure, name the pattern, fix one thing |
 | Feature touches user input or auth | `/security-review` | Trace inputs, check named patterns |

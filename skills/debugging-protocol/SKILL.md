@@ -1,13 +1,17 @@
 ---
 name: debugging-protocol
-description: Systematic protocol for diagnosing broken behavior. Schema mismatch causes 80% of bugs. Use when something isn't showing, isn't working, or is still broken after a fix attempt.
+description: Systematic protocol for diagnosing broken behavior and making recurrence structurally impossible. Schema mismatch causes 80% of bugs. Use when something isn't showing, isn't working, or is still broken after a fix attempt.
 ---
 
 # Debugging Protocol
 
-The fastest path from symptom to fix. Schema mismatch causes 80% of bugs.
+Two phases. Phase 1 finds and fixes the instance. Phase 2 closes the structural gap so the class of bug cannot recur.
 
-## Step 1: Schema Alignment Check
+---
+
+## Phase 1: Find and Fix
+
+### Step 1: Schema Alignment Check
 
 Do this first, before any other investigation.
 
@@ -16,7 +20,7 @@ Do this first, before any other investigation.
 3. Compare field names character by character.
 4. Identify mismatches: API returns `field_x`, code expects `field_y`.
 
-## Step 2: Data Flow Verification
+### Step 2: Data Flow Verification
 
 Trace backwards from the symptom:
 
@@ -24,7 +28,7 @@ Trace backwards from the symptom:
 2. What does the API actually return?
 3. Where does the chain break?
 
-## Step 3: Trace the Call Chain
+### Step 3: Trace the Call Chain
 
 If schema is confirmed correct, trace execution from entry to symptom:
 
@@ -34,7 +38,7 @@ If schema is confirmed correct, trace execution from entry to symptom:
 
 Never add logging at the symptom. Add it where the data changes hands.
 
-## Step 4: Proof-Based Fixing
+### Step 4: Proof-Based Fix
 
 Show BEFORE/AFTER with evidence:
 
@@ -44,7 +48,7 @@ Show BEFORE/AFTER with evidence:
 
 Once fixed, run `/verification-workflow` to prove the fix holds under the full change cycle.
 
-## Step 5: Empty Output Is Not Success
+### Step 5: Empty Output Is Not Success
 
 If a command returns no output, that is a failure signal, not a clean pass.
 
@@ -57,6 +61,8 @@ If a command returns no output, that is a failure signal, not a clean pass.
 ```
 
 Empty output causes: command not found (silently resolved), test runner found zero tests, build step produced no artifact, API returned 0 results. Each requires investigation, not assumption.
+
+---
 
 ## Hierarchy of Causes
 
@@ -91,16 +97,76 @@ These thoughts mean you are about to skip the protocol. Recognize them and stop.
 | "The schema is fine, I already checked." | Check again. Character by character. The mismatch you missed is the bug. |
 | "This must be a race condition." | Race conditions are 5% of bugs. Schema mismatch is 80%. Check schema first. |
 
+---
+
+## Phase 2: Prevent Recurrence
+
+A fix without a prevention step is not done. Phase 1 resolves the instance. Phase 2 closes the structural gap that allowed the instance to exist.
+
+### Step 1: Name the failure
+
+Two sentences. First: what broke (the observable symptom). Second: what assumption was wrong (what the code believed that was not true).
+
+Not "the query returned null" but "the code assumed the foreign key was always indexed, and it wasn't."
+Not "the hook fired on the wrong files" but "the matcher string used `|Edit|` syntax when the actual tool name is `MultiEdit`."
+
+If you cannot write the second sentence, you have named the symptom, not the failure.
+
+### Step 2: Trace to root cause
+
+Why did the system allow this? One of:
+
+- No test existed that would have caught it
+- No type constraint made the wrong state unrepresentable
+- No hook blocked the pattern at the enforcement layer
+- No linter rule flagged it before commit
+- A convention existed but required remembering rather than being enforced
+- The error path was silent (no log, no exception, no visible signal)
+
+Name the layer that was absent. "We forgot to check" is not a root cause. "There was no automated check" is.
+
+### Step 3: Make recurrence structurally impossible
+
+Pick the enforcement layer closest to the failure:
+
+| Layer | When to use |
+|-------|-------------|
+| Hook (`PreToolUse`) | Pattern appears in file writes or shell commands |
+| Failing test | Logic bug, wrong return value, missed edge case |
+| Type constraint | Wrong type was representable and passed silently |
+| Linter / static analysis rule | Style or structural pattern that can be detected statically |
+| BANNED entry in CLAUDE.md | Behavioral anti-pattern, AI-specific failure mode |
+
+One structural change per bug. Do not add a convention. Conventions require remembering. Enforcement does not.
+
+### Step 4: Add to BANNED (if broadly applicable)
+
+If this pattern could affect other projects or agents working in this codebase, add it to the Forbidden Patterns section of CLAUDE.md. The BANNED list is antifragile: each entry is a ratchet.
+
+Format:
+```
+- <pattern name>: <what it causes>. <what to do instead>.
+```
+
+### The Gate
+
+If step 3 produces only "we'll be more careful" or "we'll add a note to the docs," the root cause in step 2 is still a convention. Go back to step 2. The structural gap has not been named.
+
+---
+
 ## Anti-Patterns
 
 - Launching "investigation plans" before checking schema. The data is almost always the problem.
 - Saying "working correctly" without verification. Proof is required: show the output.
 - Skipping the BEFORE/AFTER structure. Fixes without evidence cannot be confirmed.
 - Repeating the same approach after it fails. Stop, get actual data, then try a different path.
-- Theorizing about logic errors before verifying field names. Check the data first.
-- Treating empty output as success. No output means the command failed silently, the test runner found nothing, or the query returned zero rows. Investigate before moving on.
-- Trusting training-data knowledge of library APIs. Read the actual source. Hallucinated method signatures are a real failure mode in AI-generated code.
+- Treating empty output as success. No output means the command failed silently. Investigate before moving on.
+- Trusting training-data knowledge of library APIs. Read the actual source.
+- Stopping at the fix. A fix without Phase 2 is half a repair. The next agent will hit the same class of bug.
+- "We'll be more careful next time." That is not a structural change. It is a convention. Conventions fail.
 
 ## The Floor
 
-Every debugging session is a hypothesis test, not a narrative. The hierarchy of causes is not decoration: schema mismatch accounts for most failures, and every minute spent theorizing about logic errors before verifying field names is wasted. Get the data first. Compare it against what the code expects. When the code is AI-generated, also check that the API being called actually exists in the version being used. The answer is almost always right there, one layer earlier than where the symptom appeared.
+Every debugging session is a hypothesis test, not a narrative. The hierarchy of causes is not decoration: schema mismatch accounts for most failures. Get the data first. Compare it against what the code expects.
+
+After the fix: name what assumption was wrong, identify which enforcement layer was absent, and add a structural check that makes the wrong state impossible. A bug fixed without Phase 2 is a bug deferred.

@@ -144,10 +144,7 @@ source ~/.local/bin/mcp-use
        |    (+ /agent-orchestration if 3+ independent tasks)
        |
        +--- /debugging-protocol ----- something broken?
-       |                              check data before theorizing
-       |
-       +--- /rca ------------------- bug fixed? make it structurally impossible
-       |                              root cause, prevention, BANNED entry
+       |                              phase 1: find+fix. phase 2: prevent recurrence.
        |
        +--- /performance ------------ slow? queries taking too long?
        |                              measure, name the pattern, fix one thing
@@ -216,8 +213,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/spec-writing` | First. Explore mode for brainstorming and research; structured mode for the 7-section spec. Required before plan-mode. |
 | `/plan-mode` | After spec-writing. CEO: right problem? Eng: can we build it safely? |
 | `/tdd` | Writing any feature or test. Failing test first, always. |
-| `/debugging-protocol` | Something isn't working. Check data before theorizing. Schema first, trace back. |
-| `/rca` | Bug fixed but you want to ensure it never happens again. Root cause, prevention, BANNED entry. |
+| `/debugging-protocol` | Something isn't working. Phase 1: schema first, trace back, fix. Phase 2: name the root cause, make recurrence structurally impossible. |
 | `/verification-workflow` | After any code change. Prove it works before moving on. |
 | `/performance` | Code is slow. Queries taking too long. Suspect N+1, O(n squared), or missing indexes. |
 | `/security-review` | Feature touches user input, auth, file paths, or database queries. |
