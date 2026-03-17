@@ -150,6 +150,7 @@ The claude-stack skills form a lifecycle. Each skill fires at a specific moment.
 | Moment | Skill | Trigger |
 |--------|-------|---------|
 | Ready to merge | `/ship-pipeline` | Pre-flight review, test, commit, push, PR |
+| Cutting a versioned release | `/release` | Semver suggestion, version bump, annotated tag, GitHub release |
 
 ### Maintenance
 

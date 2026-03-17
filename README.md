@@ -177,6 +177,9 @@ source ~/.local/bin/mcp-use
        |
        v
    /ship-pipeline ------ pre-flight review, merge, test, commit, push, PR
+       |
+       v
+   /release ------------ versioned release: semver bump, tag, gh release create
 
 
   always active (no invocation needed)
@@ -230,6 +233,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/visual-verify` | After UI changes. Element-level proof before declaring done. |
 | `/browser-testing` | Deep browser testing with gstack. Network, console, forms, multi-tab, authenticated API calls. |
 | `/ship-pipeline` | Ready to ship. Pre-flight review, merge, test, commit, push, PR. |
+| `/release` | Versioned release. Semver bump suggestion, version file update, annotated tag, `gh release create`. Run after the PR merges. |
 | `/update` | Install, update, or sync claude-stack. Dev path runs `./update`; user path runs `claude plugin install`. |
 
 ---
