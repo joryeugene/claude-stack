@@ -125,9 +125,8 @@ The claude-stack skills form a lifecycle. Each skill fires at a specific moment.
 | Moment | Skill | Trigger |
 |--------|-------|---------|
 | Before first line of UI code | `/visual-design` | Visual identity before implementation: color, typography, tokens |
-| Before shipping UI behavior | `/interaction-design` | Discoverability, modes, feedback, keyboard-first patterns |
+| Before shipping UI behavior or auditing compliance | `/interaction-design` | Audience dimensions, discoverability, modes, feedback, keyboard-first, WCAG 2.1 AA audit |
 | After UI changes | `/visual-verify` | Element-level proof, not full-page screenshots |
-| Before shipping UI | `/accessibility-review` | WCAG 2.1 AA audit, keyboard, contrast, screen reader |
 | Testing behavior in browser | `/browser-testing` | Network, console, forms, multi-tab |
 
 ### Review

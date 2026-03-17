@@ -157,9 +157,8 @@ source ~/.local/bin/mcp-use
        |
        |   (building UI?)
        +--- /visual-design ----------- visual identity before a line of code
-       +--- /interaction-design ----- modes, feedback, discoverability before shipping
+       +--- /interaction-design ----- audience dimensions, modes, feedback, WCAG audit
        +--- /visual-verify ---------- element-level proof after UI changes
-       +--- /accessibility-review --- WCAG 2.1 AA before shipping UI
        +--- /browser-testing -------- network, console, forms, multi-tab
        |
        |   (review)
@@ -220,9 +219,8 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/code-hygiene` | AI-session debt accumulating: dead exports, duplicate logic, orphaned types. Also: `/code-hygiene debt` for tech debt audit with prioritization. |
 | `/code-review` | Receiving PR feedback or requesting review before merge. Restate, YAGNI check, two-stage review. |
 | `/incident-response` | Production down or alert fires. Severity classification, comms, blameless postmortem with 5 whys. |
-| `/accessibility-review` | WCAG 2.1 AA audit before shipping UI. Contrast, keyboard, screen reader, touch targets. |
 | `/visual-design` | Starting UI work. Visual identity: color, typography, spacing, the AI slop test. |
-| `/interaction-design` | Before shipping UI behavior. Discoverability, modes, feedback timing, keyboard-first. |
+| `/interaction-design` | Before shipping UI behavior or auditing for compliance. Audience dimensions, discoverability, modes, feedback, WCAG 2.1 AA. |
 | `/visual-verify` | After UI changes. Element-level proof before declaring done. |
 | `/browser-testing` | Deep browser testing with gstack. Network, console, forms, multi-tab, authenticated API calls. |
 | `/ship-pipeline` | Ready to ship. Pre-flight review, merge, test, commit, push, PR. |
