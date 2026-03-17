@@ -140,6 +140,9 @@ source ~/.local/bin/mcp-use
        |
    coding begins
        |
+       +--- /tdd + /verification-workflow  starting implementation from the plan
+       |    (+ /agent-orchestration if 3+ independent tasks)
+       |
        +--- /tdd -------------------- writing any feature or test?
        |                              failing test first, always
        |
