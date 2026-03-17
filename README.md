@@ -1,17 +1,17 @@
 # claude-stack  v1.0
 
 ```
-    ▐▛███▜▌
-   ▝▜█████▛▘   skills/       workflow     on demand
-     ▘▘ ▝▝
-    ▐▛███▜▌
-   ▝▜█████▛▘   hooks/        enforcement  always fires
-     ▘▘ ▝▝
-    ▐▛███▜▌
-   ▝▜█████▛▘   CLAUDE.md     philosophy   always loaded
-     ▘▘ ▝▝
+ ▐▛███▜▌   skills/       workflow     on demand
+▝▜█████▛▘
+  ▘▘ ▝▝
+ ▐▛███▜▌   hooks/        enforcement  always fires
+▝▜█████▛▘
+  ▘▘ ▝▝
+ ▐▛███▜▌   CLAUDE.md     philosophy   always loaded
+▝▜█████▛▘
+  ▘▘ ▝▝
 
-    19 skills  ·  5 hooks  ·  1 CLAUDE.md
+ 19 skills  ·  5 hooks  ·  1 CLAUDE.md
 ```
 
 Skills alone make Claude better at tasks. This makes Claude better at engineering.
