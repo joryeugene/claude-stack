@@ -102,10 +102,11 @@ The claude-stack skills form a lifecycle. Each skill fires at a specific moment.
 
 ### Project start
 
-| Moment | Skill | Trigger |
-|--------|-------|---------|
-| Scope unclear, wrong thing could be built | `/spec-writing` | Write problem, criteria, non-goals first |
-| Before any significant work | `/plan-mode` | CEO: right problem? Eng: safe to build? |
+| Step | Moment | Skill | Trigger |
+|------|--------|-------|---------|
+| 0 | Direction unclear, research or brainstorming needed | `/spec-writing explore` | Research prior art, generate options, identify the decision point |
+| 1 | Direction set, scope unclear or wrong thing could be built | `/spec-writing` | Write problem, success criteria, non-goals. Required input for plan-mode. |
+| 2 | Spec written, before any significant work | `/plan-mode` | CEO: right problem? Eng: can we build it safely? |
 
 ### During development
 

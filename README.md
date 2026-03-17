@@ -51,7 +51,15 @@ claude plugin marketplace add joryeugene/claude-stack
 claude plugin install claude-stack
 ```
 
-Verify it worked (the CLI is silent on both success and failure):
+Verify it worked. The CLI is silent on both success and failure, so confirm from within a new Claude Code session:
+
+```
+/sync
+```
+
+The `/sync` skill runs a health check: marketplace registration, plugin installation, skill count, hook count. If it reports issues, it prints the fix commands.
+
+Alternatively, if you have the repo cloned:
 
 ```bash
 git clone https://github.com/joryeugene/claude-stack.git
@@ -121,11 +129,14 @@ source ~/.local/bin/mcp-use
   project starts
        |
        v
-   /spec-writing ------- scope unclear? write problem, criteria, non-goals first
+   /spec-writing explore  -- direction unclear? research, brainstorm, find the decision point
        |
        v
-   /plan-mode  --------- CEO: is this the right problem?
-       |                 Eng: can we build it safely?
+   /spec-writing  ---------- write problem, success criteria, non-goals
+       |
+       v
+   /plan-mode  ------------- CEO: is this the right problem?
+       |                     Eng: can we build it safely?
        |
    coding begins
        |
@@ -201,8 +212,8 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 |-------|----------------------|
 | `/agent-principles` | Always active. The quality contract: evidence-first, no hedging. |
 | `/agent-orchestration` | You have 2+ independent tasks that can run in parallel. |
-| `/spec-writing` | Scope is unclear or the wrong thing might get built. Write problem, criteria, non-goals first. |
-| `/plan-mode` | Before significant work. Is this the right problem? Can we build it safely? |
+| `/spec-writing` | First. Explore mode for brainstorming and research; structured mode for the 7-section spec. Required before plan-mode. |
+| `/plan-mode` | After spec-writing. CEO: right problem? Eng: can we build it safely? |
 | `/tdd` | Writing any feature or test. Failing test first, always. |
 | `/debugging-protocol` | Something isn't working. Check data before theorizing. Schema first, trace back. |
 | `/rca` | Bug fixed but you want to ensure it never happens again. Root cause, prevention, BANNED entry. |

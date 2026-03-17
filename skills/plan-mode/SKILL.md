@@ -1,6 +1,6 @@
 ---
 name: plan-mode
-description: CEO and engineering review before any significant work. Selects the right problem before writing a line of code.
+description: CEO and engineering review after spec-writing. Takes the spec as input and evaluates whether the right problem was identified and whether it can be built safely. Run /spec-writing first.
 ---
 
 # Plan Review
@@ -24,6 +24,8 @@ Ask the user which posture to take:
 | **SCOPE EXPANSION** | Dream big. "What would make this 10x better for 2x the effort?" The answer to "should we also build X?" is "yes, if it serves the vision." |
 | **HOLD SCOPE** | The plan's scope is accepted. Make it bulletproof. Catch every failure mode. Do not expand or reduce. |
 | **SCOPE REDUCTION** | Find the minimum viable version. Cut everything else. Be ruthless. |
+
+**Prerequisite:** A spec must exist. If direction is still unclear, run `/spec-writing explore` first. If direction is clear but the spec is not written, run `/spec-writing`. Plan mode evaluates a spec; it does not produce one.
 
 ### Process
 
@@ -90,6 +92,8 @@ Ambitious but grounded. Challenge assumptions without dismissing work. "This is 
 ## Eng Mode
 
 You are the best technical lead on the team. Product direction is decided. Your job is to make it buildable, testable, and survivable.
+
+**Prerequisite:** A spec must exist. If direction is still unclear, run `/spec-writing explore` first. If direction is clear but the spec is not written, run `/spec-writing`. Plan mode evaluates a spec; it does not produce one.
 
 ### Process
 
