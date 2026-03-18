@@ -1,194 +1,226 @@
 ---
 name: browser-testing
-description: Deep browser testing with gstack. Use when testing UI behavior, verifying network requests, checking console errors, filling forms, handling dialogs, or doing multi-tab testing. Covers the full gstack command inventory.
+description: Deep browser testing. Use when testing UI behavior, verifying network requests, checking console errors, filling forms, handling dialogs, or doing multi-tab testing. Covers MCP browser tools and the browse CLI.
 ---
 
-# Browser Testing with gstack
+# Browser Testing
 
-[gstack](https://github.com/garrytan/gstack) is a persistent Chromium daemon built on Playwright and Bun by Garry Tan. It exposes a complete browser testing toolkit through a CLI binary. No MCP protocol, no token overhead from protocol framing. First call takes ~3 seconds to launch Chromium; subsequent calls take 100-200ms. Auto-shuts down after 30 minutes of inactivity.
+Two tools for browser automation and inspection. Pick based on the project.
 
-## Installation
+## Which tool?
 
-The `browse` source is bundled with claude-stack. Build it once:
+| Situation | Use | Why |
+|-----------|-----|-----|
+| E2E test automation, form filling | Playwright MCP | Native tool calls, structured output |
+| Network inspection, console monitoring | Chrome DevTools MCP | Real-time Chrome inspection |
+| Rapid iteration, many sequential checks | browse CLI | Persistent daemon, 100ms per call |
+| Accessibility tree snapshots, element refs | browse CLI | `@e1` refs with fast-fail on stale DOM |
+| Cookie import from real browser session | browse CLI | Pulls from Chrome/Arc/Brave/Edge via macOS Keychain |
+| Quick one-off screenshot or navigation | Either | Both work, MCP is zero-setup |
 
+## Setup
+
+**MCP tools** (zero build step):
+```bash
+mcp-use browser    # playwright + chrome-devtools -> .mcp.json
+mcp-use playwright # playwright only
+mcp-use chrome     # chrome-devtools only
+```
+
+Restart Claude Code after running to pick up the new `.mcp.json`.
+
+**browse CLI** (persistent daemon, requires bun):
 ```bash
 cd ${CLAUDE_PLUGIN_ROOT}/browse && ./setup
 ```
 
-Requires [bun](https://bun.sh) v1.0+. The binary lands at `${CLAUDE_PLUGIN_ROOT}/browse/dist/browse`.
+The binary lands at `${CLAUDE_PLUGIN_ROOT}/browse/dist/browse`. First call ~3s to launch Chromium; subsequent calls 100-200ms. Auto-shuts down after 30 minutes of inactivity.
 
-## Command reference
+---
+
+## MCP tools: Playwright
+
+When `mcp-use playwright` or `mcp-use browser` is active, the Playwright MCP server provides these tools:
 
 **Navigation**
-- `goto <url>` - navigate to URL
-- `back` - go back
-- `forward` - go forward
-- `reload` - reload page
-- `url` - print current URL
+- `browser_navigate` - go to a URL
+- `browser_go_back` / `browser_go_forward` - history navigation
+- `browser_wait` - wait for page to settle
 
 **Content reading**
-- `text` - get visible text content
-- `html` - get page HTML
-- `links` - list all links on page
-- `forms` - list all forms and their fields
-- `accessibility` - get accessibility tree
+- `browser_snapshot` - accessibility tree with element refs
+- `browser_take_screenshot` - viewport or element screenshot
+- `browser_get_text` - extract visible text
+
+**Interaction**
+- `browser_click` - click an element (by ref from snapshot)
+- `browser_type` - type text into a field
+- `browser_select_option` - select from dropdown
+- `browser_hover` - hover over element
+- `browser_press_key` - keyboard input (Enter, Tab, Escape, etc.)
+- `browser_drag` - drag and drop
+
+**Tabs**
+- `browser_tab_list` - list open tabs
+- `browser_tab_new` - open new tab
+- `browser_tab_select` - switch tab
+- `browser_tab_close` - close tab
+
+### Standard test loop (Playwright MCP)
+
+```
+1. browser_navigate to the target URL
+2. browser_snapshot to see initial state and get element refs
+3. browser_click / browser_type to interact
+4. browser_snapshot again to verify the DOM changed
+5. browser_take_screenshot for visual proof
+```
+
+After page mutations, always re-snapshot before using element refs. Stale refs from a previous snapshot will target the wrong element.
+
+---
+
+## MCP tools: Chrome DevTools
+
+When `mcp-use chrome` or `mcp-use browser` is active, the Chrome DevTools MCP server provides inspection tools for a running Chrome instance.
+
+**Network**
+- Capture and inspect network requests/responses
+- View headers, status codes, timing, payload sizes
+
+**Console**
+- Read console messages (errors, warnings, logs)
+- Evaluate JavaScript expressions in page context
+
+**DOM**
+- Inspect and query DOM nodes
+- Get computed styles, element attributes
+
+### When to use DevTools vs Playwright
+
+Playwright drives a headless browser from scratch. Chrome DevTools attaches to an existing Chrome session. Use DevTools when you need to inspect a page that requires a real logged-in browser session, or when you need network-level detail that Playwright does not expose.
+
+---
+
+## browse CLI
+
+The `browse` binary is a persistent Chromium daemon built on Playwright and Bun. Based on [gstack](https://github.com/garrytan/gstack) by Garry Tan (MIT).
+
+**Navigation**
+- `browse goto <url>` - navigate to URL
+- `browse back` / `browse forward` - history
+- `browse reload` - reload page
+- `browse url` - print current URL
+
+**Content reading**
+- `browse text` - visible text content
+- `browse html` - page HTML
+- `browse links` - all links on page
+- `browse forms` - all forms and their fields
+- `browse accessibility` - accessibility tree
 
 **Snapshots (element refs)**
-- `snapshot` - get accessibility tree with `@e1`, `@e2` element refs
-- `snapshot -i` - inline mode (compact output)
-- `snapshot -c` - compact mode
-- `snapshot -d N` - limit depth to N levels
-- `snapshot -s <selector>` - scope to CSS selector
-- `snapshot -D` - diff mode (show what changed since last snapshot)
-- `snapshot -a` - annotate mode
+- `browse snapshot` - accessibility tree with `@e1`, `@e2` element refs
+- `browse snapshot -D` - diff mode (show what changed since last snapshot)
+- `browse snapshot -i` - inline mode (compact output)
+- `browse snapshot -c` - compact mode
+- `browse snapshot -d N` - limit depth to N levels
+- `browse snapshot -s <selector>` - scope to CSS selector
 
 Element refs (`@e1`, `@e2`) are based on the accessibility tree, not DOM injection. They fail fast (~5ms) when the DOM has changed, instead of hanging for 30 seconds on a stale selector.
 
 **Interaction**
-- `click [selector|@ref]` - click an element
-- `fill <selector|@ref> <text>` - fill a text input
-- `select <selector|@ref> <value>` - select dropdown option
-- `hover <selector|@ref>` - hover over element
-- `type <text>` - type text into focused element
-- `press <key>` - press a keyboard key (Enter, Tab, Escape, j, l, Shift+L, etc.)
-- `scroll [direction] [amount]` - scroll the page
-- `wait [selector|timeout]` - wait for element or duration
-- `viewport <width> <height>` - resize viewport
-- `upload <selector> <filepath>` - upload file to input
+- `browse click [selector|@ref]` - click an element
+- `browse fill <selector|@ref> <text>` - fill a text input
+- `browse select <selector|@ref> <value>` - select dropdown option
+- `browse hover <selector|@ref>` - hover over element
+- `browse type <text>` - type text into focused element
+- `browse press <key>` - press a keyboard key (Enter, Tab, Escape, Shift+L, etc.)
+- `browse scroll [direction] [amount]` - scroll the page
+- `browse wait [selector|timeout]` - wait for element or duration
+- `browse viewport <width> <height>` - resize viewport
 
 **Debugging**
-- `js <expression>` - execute JavaScript, returns value
-- `eval <filepath>` - evaluate a JS file
-- `css <selector>` - get computed styles for element
-- `attrs <selector>` - get element attributes
-- `is <selector> <state>` - check if element is visible, enabled, checked, etc.
-- `console` - get console messages (errors, warnings, logs)
-- `network` - list captured network requests
-- `dialog` - check for and handle alert/confirm/prompt dialogs
-- `cookies` - list cookies
-- `storage` - inspect localStorage/sessionStorage
-- `perf` - performance metrics
+- `browse js <expression>` - execute JavaScript, returns value
+- `browse console` - get console messages (errors, warnings, logs)
+- `browse network` - list captured network requests
+- `browse dialog` - check for and handle alert/confirm/prompt dialogs
+- `browse cookies` - list cookies
+- `browse storage` - inspect localStorage/sessionStorage
+- `browse css <selector>` - computed styles for element
+- `browse attrs <selector>` - element attributes
 
 **Visual capture**
-- `screenshot` - take viewport screenshot
-- `screenshot --viewport <w>x<h>` - screenshot at specific size
-- `screenshot --clip <selector>` - screenshot cropped to element
-- `pdf` - save page as PDF
-- `responsive` - screenshots at multiple breakpoints
+- `browse screenshot` - viewport screenshot
+- `browse screenshot --clip <selector>` - cropped to element
+- `browse responsive` - screenshots at multiple breakpoints
 
 **Cookie/Auth import**
-- `cookie-import <filepath>` - import cookies from JSON file
-- `cookie-import-browser` - auto-import sessions from Chrome/Arc/Brave/Edge via macOS Keychain
+- `browse cookie-import <filepath>` - import cookies from JSON file
+- `browse cookie-import-browser` - auto-import sessions from Chrome/Arc/Brave/Edge via macOS Keychain
 
 **Tab management**
-- `tabs` - list open tabs
-- `tab <index>` - switch to tab by index
-- `newtab [url]` - open new tab
-- `closetab` - close current tab
+- `browse tabs` - list open tabs
+- `browse tab <index>` - switch to tab
+- `browse newtab [url]` - open new tab
+- `browse closetab` - close current tab
+
+### Standard test loop (browse CLI)
+
+```
+1. browse goto <url>
+2. browse snapshot                # see initial state + get element refs
+3. browse console                 # check for JS errors on load
+4. browse js "DOM assertion"      # verify state before interacting
+5. browse click @e3               # perform action
+6. browse snapshot -D             # diff to see what changed
+7. browse network                 # verify API calls fired
+```
+
+After page mutations, always re-snapshot before using element refs.
 
 ---
 
-## Standard test loop
+## Keyboard Testing
+
+Keyboard handlers require real key simulation, not text injection.
+
+### `press_key` vs `type_text`
+
+| Tool | Behavior | Use when |
+|------|----------|----------|
+| `press_key` | Fires `keydown`, `keypress`, `keyup` events through DOM event flow | Testing keyboard shortcuts, overlay handlers, modal key dispatch |
+| `type_text` | Injects text directly into focused element, bypassing DOM events | Filling form fields where you need the final value, not the event |
+
+`type_text` bypasses the event listener chain entirely. A keyboard handler bug (undefined function, wrong dispatch, capture-phase conflict) will not surface with `type_text`. The handler never fires.
+
+When testing keyboard shortcuts: always `press_key`. When filling an input field value: `type_text` is acceptable but `press_key` per character is more realistic.
+
+### Keyboard test loop
 
 ```
-1. goto <url>
-2. snapshot                    # see initial state + get element refs
-3. console                    # check for JS errors on load
-4. js "DOM assertion"         # verify state before interacting
-5. click @e3 / press Enter    # perform action
-6. snapshot -D                # diff to see what changed
-7. network                    # verify API calls fired
+1. Navigate to the page
+2. Check console for JS errors (clean baseline)
+3. press_key the shortcut
+4. Check console again (catch ReferenceError, TypeError from handler)
+5. Verify DOM changed (snapshot diff, js assertion, or element screenshot)
+6. Test each sub-command within the overlay
+7. press_key Escape to close
+8. Verify overlay closed and page focus restored
 ```
 
-After page mutations (clicks, form submissions, navigation), always re-snapshot before using element refs. Stale refs from a previous snapshot will fail fast with an error rather than silently targeting the wrong element.
+### Common keyboard testing failures
 
----
-
-## Network inspection
-
-Check which API calls fired after an action:
-
-```
-network
-```
-
-For authenticated API testing, use `cookie-import-browser` to pull your real browser session, then `goto` the authenticated page directly.
-
----
-
-## Console error checking
-
-Check for JS errors immediately after page load and after significant interactions:
-
-```
-console
-```
-
-Run `console` before declaring any page "working."
-
----
-
-## Form testing
-
-**Text input (clear then fill)**
-
-```
-fill @e5 "new value"
-```
-
-Or with a CSS selector:
-
-```
-fill "#email" "user@example.com"
-```
-
-**Select / dropdown**
-
-```
-select @e7 "Option B"
-```
-
-**Keyboard shortcuts**
-
-```
-press j           # single key
-press Shift+L     # modifier + key
-press Enter       # submit
-press Escape      # dismiss
-press Tab         # focus next
-```
-
-**Dialogs (alert / confirm / prompt)**
-
-```
-dialog                 # check if dialog is pending
-dialog accept          # click OK
-dialog dismiss         # click Cancel
-```
-
----
-
-## Multi-tab testing
-
-```
-newtab https://example.com/page2
-tabs                   # list all open tabs
-tab 1                  # switch to tab by index
-closetab               # close current tab
-```
-
----
+| Failure | Symptom | Root cause |
+|---------|---------|------------|
+| Key does nothing | No console error, no DOM change | Key missing from dispatch logic |
+| ReferenceError on keypress | Console shows undefined variable | JS references non-existent identifier |
+| Overlay input broken | Cannot type in text fields | Capture-phase handler intercepts all keys without input element guard |
 
 ## What NOT to do
 
 - Do not trust a single screenshot as proof. Verify with `js` or `snapshot` to confirm DOM state matches visual appearance.
-- Do not use stale `@ref` element refs after page mutations. Always re-snapshot to get fresh refs.
-- Do not skip `console` after navigation. JS errors that break functionality are silent without checking.
-- Do not use `snapshot` as the only verification. Combine with `js` for precise DOM assertions (class presence, attribute values, computed styles).
-- Do not poll with repeated `screenshot` calls. Use `wait` to let the page settle, then check once.
-
----
-
-## Credit
-
-Built by [Garry Tan](https://github.com/garrytan). Persistent Chromium daemon, Playwright locators, Bun compiled binary, accessibility tree element refs.
+- Do not use stale element refs after page mutations. Always re-snapshot to get fresh refs.
+- Do not skip console checks after navigation. JS errors that break functionality are silent without checking.
+- Do not use snapshot as the only verification. Combine with `js` for precise DOM assertions (class presence, attribute values, computed styles).
+- Do not use `type_text` to test keyboard shortcuts. It bypasses event listeners entirely and hides real bugs. Use `press_key`.

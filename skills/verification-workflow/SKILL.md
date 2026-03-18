@@ -49,6 +49,9 @@ Different changes require different proof. Generic "run tests" is not enough.
 | Database query | `EXPLAIN ANALYZE` before and after. Compare rows scanned and plan type. |
 | Database schema | Query the table post-migration. Confirm expected columns, types, and row count. |
 | UI component | Element-level screenshot (not full-page). See `/visual-verify`. |
+| Keyboard shortcut | `press_key` in browser (not `type_text`). Check console for errors after each key. Verify DOM changed. |
+| Overlay/modal | Open with key, test every sub-command, test text input fields, close with Escape. Console clean throughout. |
+| Inline JS in Python | Run `check-js-refs` or equivalent structural check. Every called function and referenced variable must resolve. |
 | CLI command | `<command> 2>&1; echo "Exit: $?"`. Both stdout and exit code must be shown. |
 | File write | Read the file back immediately after. Verify the content matches intent. |
 | Test change | Run the full test suite. Show pass/fail counts and any new failures. |
@@ -56,6 +59,23 @@ Different changes require different proof. Generic "run tests" is not enough.
 | Config change | Show the running process or service has picked up the new value. |
 
 Empty output is not success. If a command produces no output, check the exit code and the code path. See the BANNED pattern: "Ignoring empty output."
+
+## UI Feature Verification
+
+Pytest passing does not prove a UI feature works. Unit tests verify API endpoints and data logic. They cannot verify that a keyboard shortcut opens an overlay, that text input works inside that overlay, or that the JS function names are correct.
+
+After any change to keyboard handlers, overlays, or frontend JS:
+
+1. **Rebuild the binary** from source (not cached). The running binary is a snapshot.
+2. **Restart the server** and verify it responds.
+3. **Open the page in a real browser** (Chrome DevTools MCP or browse CLI).
+4. **Check console** for JS errors on load (clean baseline).
+5. **Press each key** with `press_key` (never `type_text` for shortcut testing).
+6. **Check console after each key press.** A ReferenceError means the handler references a non-existent JS identifier. No error and no DOM change means the key is not in the dispatch logic.
+7. **Test every sub-command** within overlays. Opening the overlay is not enough.
+8. **Test text input fields** inside overlays. If typing does not work, the keyboard handler is intercepting keystrokes meant for the input element.
+
+A feature that passes pytest but has not been browser-tested with real key presses is unverified.
 
 ## When You Can't Verify
 

@@ -85,6 +85,17 @@ AI-generated code has a distinct failure signature beyond the standard hierarchy
 
 When an AI-generated function call fails with "not a function", "undefined is not", or "unexpected keyword argument": check the actual library source before assuming logic error. The method may not exist as written.
 
+## Inline JS Failure Modes
+
+When Python serves HTML with embedded `<script>` blocks (Flask, serve.py, single-file apps), a distinct failure class emerges: the JS runtime has no build step, no linter, and no import checker. Bugs are silent until runtime.
+
+| Failure | Symptom | Check |
+|---------|---------|-------|
+| Undefined variable | ReferenceError in console | Grep for the variable name in `<script>` block. Does any `let`/`const`/`var` declare it? |
+| Undefined function | TypeError in console | Grep for `function funcName`. Does the definition exist? AI-generated code frequently calls functions that were never defined. |
+
+For inline JS verification steps, see `/verification-workflow` (UI Feature Verification section).
+
 ## Rationalization Red Flags
 
 These thoughts mean you are about to skip the protocol. Recognize them and stop.
