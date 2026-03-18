@@ -5,3 +5,4 @@ __pycache__/
 browse/dist/
 browse/node_modules/
 browse/bun.lock
+.browse/

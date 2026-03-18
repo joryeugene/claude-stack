@@ -106,7 +106,11 @@ From any project directory:
 ```bash
 mcp-use                      # list available presets
 mcp-use best                 # .mcp.json <- gitmcp + hive (foundation)
-mcp-use ui                   # .mcp.json <- shadcn
+mcp-use playwright           # .mcp.json <- playwright MCP
+mcp-use chrome               # .mcp.json <- chrome-devtools MCP
+mcp-use browser              # .mcp.json <- playwright + chrome-devtools
+mcp-use shad                 # .mcp.json <- shadcn-ui
+mcp-use ui                   # .mcp.json <- shadcn-ui + chrome-devtools
 mcp-use workspace            # .mcp.json <- Google Workspace
 mcp-use all                  # .mcp.json <- everything
 ```
@@ -258,7 +262,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/visual-design` | Starting UI work. Visual identity: color, typography, spacing, the AI slop test. |
 | `/interaction-design` | Before shipping UI behavior or auditing for compliance. Audience dimensions, discoverability, modes, feedback, WCAG 2.1 AA. |
 | `/visual-verify` | After UI changes. Element-level proof before declaring done. |
-| `/browser-testing` | Deep browser testing with gstack. Network, console, forms, multi-tab, authenticated API calls. |
+| `/browser-testing` | Deep browser testing. MCP tools (Playwright, Chrome DevTools) and the browse CLI for persistent daemon testing. |
 | `/ship-pipeline` | Ready to ship. Pre-flight review, merge, test, commit, push, PR. |
 | `/release` | Versioned release. Semver bump suggestion, version file update, annotated tag, `gh release create`. Run after the PR merges. |
 | `/update` | Install, update, or sync claude-stack. Dev path runs `./update`; user path runs `claude plugin install`. |
@@ -352,23 +356,25 @@ For custom skills outside this repo, create a second plugin directory and regist
 
 ## Browser automation
 
-[gstack](https://github.com/garrytan/gstack) by Garry Tan is a persistent Chromium daemon built on Playwright and Bun. It replaces MCP-based browser tools with a CLI binary that returns plain text.
+Two approaches to browser testing. Both ship with claude-stack.
 
-Why gstack:
+**MCP presets** (zero build step): Playwright MCP for E2E automation and Chrome DevTools MCP for network/console inspection. Standard MCP tools that Claude calls natively.
 
-- **Persistent daemon**: first call ~3s, subsequent calls 100-200ms. No cold start per action.
-- **Accessibility tree refs**: `snapshot` returns `@e1`, `@e2` refs. Fail fast (~5ms) on stale refs instead of 30-second timeouts.
-- **Zero MCP overhead**: plain CLI output, no protocol framing. Token-efficient.
-- **Cookie import**: `cookie-import-browser` pulls sessions from Chrome/Arc/Brave/Edge via macOS Keychain.
-- **30-min idle shutdown**: no zombie processes.
+```bash
+mcp-use browser              # playwright + chrome-devtools
+mcp-use playwright           # automation only
+mcp-use chrome               # inspection only
+```
 
-The browse source is bundled with claude-stack. Build it once:
+**browse CLI** (persistent daemon): a compiled binary that keeps Chromium running between calls. First call ~3s, subsequent calls 100-200ms. Accessibility tree refs (`@e1`, `@e2`) that fail fast on stale DOM. Cookie import from Chrome/Arc/Brave/Edge via macOS Keychain. 30-minute idle shutdown.
 
 ```bash
 cd <claude-stack-repo>/browse && ./setup
 ```
 
 Requires [bun](https://bun.sh) v1.0+. Based on [gstack](https://github.com/garrytan/gstack) by Garry Tan (MIT).
+
+The `/browser-testing` skill documents both approaches and helps you choose based on the task.
 
 ---
 

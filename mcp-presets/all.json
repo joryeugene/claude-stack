@@ -12,6 +12,14 @@
         "GOOGLE_CLIENT_SECRET_PATH": "~/.config/workspace-mcp/client_secret.json"
       }
     },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
     "shadcn-ui": {
       "command": "npx",
       "args": ["-y", "shadcn-ui-mcp-server"]

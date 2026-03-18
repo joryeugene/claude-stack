@@ -3,12 +3,17 @@
 #
 # Usage:
 #   mcp-use                      -> list available presets
-#   mcp-use browser              -> (empty preset, browser testing uses gstack CLI)
-#   mcp-use workspace            -> copy workspace preset
-#   mcp-use browser workspace    -> merge both presets
+#   mcp-use playwright           -> playwright MCP only
+#   mcp-use chrome               -> chrome-devtools MCP only
+#   mcp-use browser              -> playwright + chrome-devtools
+#   mcp-use shad                 -> shadcn-ui only
+#   mcp-use ui                   -> shadcn-ui + chrome-devtools
+#   mcp-use workspace            -> Google Workspace
+#   mcp-use best                 -> gitmcp + hive (foundation)
+#   mcp-use all                  -> everything
+#   mcp-use browser workspace    -> merge multiple presets
 #
 # Presets live in ~/.config/mcp-presets/
-# Available: browser, ui, workspace, all
 #
 # To install as a shell function, add to your ~/.zshrc or ~/.bashrc:
 #   source ~/.claude/skills/claude-stack/scripts/mcp-use.sh

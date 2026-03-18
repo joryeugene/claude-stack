@@ -8,9 +8,9 @@ version: 0.4.0
 
 Element-level proof for every UI change. Full-page screenshots miss the bugs that matter.
 
-## With gstack
+## With browse CLI
 
-gstack's `snapshot` command returns the accessibility tree with element refs (`@e1`, `@e2`). Use `screenshot --clip` to crop to a specific element, or `js` to inspect computed styles and bounding boxes.
+The `browse` command returns the accessibility tree with element refs (`@e1`, `@e2`). Use `screenshot --clip` to crop to a specific element, or `js` to inspect computed styles and bounding boxes.
 
 ### The standard verification loop
 
@@ -31,7 +31,7 @@ gstack's `snapshot` command returns the accessibility tree with element refs (`@
 
 ### When you need a tighter crop
 
-gstack returns viewport-level screenshots by default. For a 1px border or small component, use `--clip`:
+The browse CLI returns viewport-level screenshots by default. For a 1px border or small component, use `--clip`:
 
 ```
 screenshot --clip ".your-selector"
