@@ -217,6 +217,73 @@ When testing keyboard shortcuts: always `press_key`. When filling an input field
 | ReferenceError on keypress | Console shows undefined variable | JS references non-existent identifier |
 | Overlay input broken | Cannot type in text fields | Capture-phase handler intercepts all keys without input element guard |
 
+## Chrome DevTools MCP: Modifier Keys
+
+Chrome DevTools `press_key` does NOT synthesize shift modifiers when sending uppercase letters.
+
+```javascript
+// press_key("L") generates: {key: "L", shiftKey: false, code: "KeyL"}
+// This breaks handlers that check e.shiftKey to distinguish Shift+L from column navigation
+```
+
+**Workaround:** Use `evaluate_script` to dispatch a synthetic event with the correct modifiers:
+
+```javascript
+document.dispatchEvent(new KeyboardEvent('keydown', {
+  key: 'L', code: 'KeyL', shiftKey: true, bubbles: true, cancelable: true
+}));
+```
+
+**Pitfall with `Shift+l` syntax:** `press_key("Shift+l")` fires two separate events: first `ShiftLeft` (captured by listeners checking `e.key==='Shift'`), then `l` with `shiftKey:true`. If your listener removes itself after the first event (the Shift keydown), it won't see the second. Listen for the actual character key, not the modifier.
+
+## Binary/Bundle Staleness
+
+When an app bundles its frontend (Python serving inline JS, Electron, packaged CLI), the running binary may NOT match the source. Bugs visible in the browser may already be fixed in source -- the binary just hasn't been rebuilt.
+
+Before concluding a bug is unfixed: rebuild the binary and test again.
+
+```bash
+# Python CLI example
+uv tool install --force --reinstall .
+# Then restart the server and retest
+```
+
+If tests pass after rebuild without any source changes, the bug was in the stale binary, not the source. The fix was the rebuild.
+
+## Verifying State After Async Operations
+
+After browser interactions that trigger API calls (mutations), the DOM may not update synchronously. Use `evaluate_script` with a small delay to verify final state:
+
+```javascript
+() => new Promise(resolve => setTimeout(() => {
+  const item = appState?.items?.find(item => item.id === targetId);
+  resolve(item?.status);
+}, 500))
+```
+
+Or check the DOM class directly rather than the JS state variable:
+
+```javascript
+() => document.querySelector('.card.nav-selected')?.className
+// More reliable than reading JS variables which may not reflect DOM truth
+```
+
+## JS State Variables vs DOM Truth
+
+App state variables (`selectedCol`, `selectedCard`) can be set directly from `evaluate_script`, but this does NOT update the DOM (no `nav-selected` class moves, no visual feedback). Functions that read the DOM (like `_getSelectedId()` using `querySelector('.card.nav-selected')`) will ignore the programmatically set variable.
+
+Always verify which state a tested function reads -- JS variable or DOM class -- before reasoning about expected behavior.
+
+## Bugs That Only Surface Through Real Interaction
+
+These bug patterns are invisible to unit tests and only appear via browser testing:
+
+1. **Broken promise chains:** `fetchData()` called without `return` in a `.then()` chain means the next `.then()` fires before the fetch resolves. The UI appears to work (no error) but shows stale data. Fix: always `return fetchData()`.
+
+2. **Off-by-default index:** An operation always targets index 0 instead of the item the user navigated to. Passes in demos where index 0 is always selected, fails in real use when any other item is focused.
+
+3. **Double-remove on detached DOM nodes:** When two code paths can remove the same element (e.g., `hideOverlay()` clears innerHTML AND an Escape handler calls `inp.remove()`), the second call throws `NotFoundError`. Fix: guard with `if(inp.parentNode) inp.remove()`. This is idempotent -- attached node removes, detached node does nothing.
+
 ## What NOT to do
 
 - Do not trust a single screenshot as proof. Verify with `js` or `snapshot` to confirm DOM state matches visual appearance.
@@ -224,3 +291,4 @@ When testing keyboard shortcuts: always `press_key`. When filling an input field
 - Do not skip console checks after navigation. JS errors that break functionality are silent without checking.
 - Do not use snapshot as the only verification. Combine with `js` for precise DOM assertions (class presence, attribute values, computed styles).
 - Do not use `type_text` to test keyboard shortcuts. It bypasses event listeners entirely and hides real bugs. Use `press_key`.
+- Do not set JS state variables via `evaluate_script` and assume DOM-reading functions will see the change. Confirm the DOM class is also updated.

@@ -77,6 +77,20 @@ After any change to keyboard handlers, overlays, or frontend JS:
 
 A feature that passes pytest but has not been browser-tested with real key presses is unverified.
 
+## Goal-Backward Verification
+
+Task completion does not equal goal achievement. A task marked done can represent a placeholder, a partial implementation, or a file that was created but never wired in. The goal may still be unmet.
+
+When verifying a feature or phase: start from the goal, not the task list.
+
+1. **State the goal** in one sentence: what property should now be true about the system?
+2. **Work backward**: what must exist in the codebase for that property to hold? What must be wired?
+3. **Check each level against the actual code**, not against your summary of what you did.
+
+Do not trust your own summaries. Summaries record what you intended or believed you did. The codebase records what actually happened. Check the codebase.
+
+Common failure: executor completed all tasks, wrote a summary, but the feature is not reachable because the route was never registered, the handler was never connected, or the function was called with the wrong argument. Task list: complete. Goal: not achieved.
+
 ## When You Can't Verify
 
 Say explicitly: "I cannot verify this works because [reason]. Please verify by running [command]."
