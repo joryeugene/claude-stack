@@ -282,15 +282,15 @@ After browser interactions that trigger API calls (mutations), the DOM may not u
 Or check the DOM class directly rather than the JS state variable:
 
 ```javascript
-() => document.querySelector('.card.nav-selected')?.className
+() => document.querySelector('.item.is-selected')?.className
 // More reliable than reading JS variables which may not reflect DOM truth
 ```
 
 ## JS State Variables vs DOM Truth
 
-App state variables (`selectedCol`, `selectedCard`) can be set directly from `evaluate_script`, but this does NOT update the DOM (no `nav-selected` class moves, no visual feedback). Functions that read the DOM (like `_getSelectedId()` using `querySelector('.card.nav-selected')`) will ignore the programmatically set variable.
+App state variables (`activeItem`, `currentRow`) can be set directly from `evaluate_script`, but this does NOT update the DOM (no `is-selected` class, no visual feedback). Functions that read the DOM (like `getActiveId()` using `querySelector('.item.is-selected')`) will ignore the programmatically set variable.
 
-Always verify which state a tested function reads -- JS variable or DOM class -- before reasoning about expected behavior.
+Always verify which state a tested function reads (JS variable or DOM class) before reasoning about expected behavior.
 
 ## Bugs That Only Surface Through Real Interaction
 
@@ -300,7 +300,7 @@ These bug patterns are invisible to unit tests and only appear via browser testi
 
 2. **Off-by-default index:** An operation always targets index 0 instead of the item the user navigated to. Passes in demos where index 0 is always selected, fails in real use when any other item is focused.
 
-3. **Double-remove on detached DOM nodes:** When two code paths can remove the same element (e.g., `hideOverlay()` clears innerHTML AND an Escape handler calls `inp.remove()`), the second call throws `NotFoundError`. Fix: guard with `if(inp.parentNode) inp.remove()`. This is idempotent -- attached node removes, detached node does nothing.
+3. **Double-remove on detached DOM nodes:** When two code paths can remove the same element (e.g., `closeModal()` clears innerHTML AND an Escape handler calls `inp.remove()`), the second call throws `NotFoundError`. Fix: guard with `if(inp.parentNode) inp.remove()`. Attached node removes, detached node does nothing.
 
 ## What NOT to do
 
