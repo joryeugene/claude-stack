@@ -22,7 +22,7 @@ Every Figma design URL contains the fileKey and nodeId:
 https://www.figma.com/design/FILE_KEY/FileName?node-id=NODE_ID
 ```
 
-- `FILE_KEY`: alphanumeric string in the URL path (e.g., `gTSp5O8ZV1JKC1yUAPqWYW`)
+- `FILE_KEY`: alphanumeric string in the URL path (e.g., `AbCdEfGhIjKlMnOpQrStUv`)
 - `NODE_ID`: the `node-id` query param value (e.g., `1234-5678`)
 - Convert `-` to `:` in node IDs when passing to the API (e.g., `1234:5678`)
 
