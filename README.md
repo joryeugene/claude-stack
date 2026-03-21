@@ -147,10 +147,12 @@ source ~/.local/bin/mcp-use
        |
        v
    /spec-writing  ---------- write problem, success criteria, non-goals
+       |                     (task mode for concrete fixes: 4-line restatement, skip plan-mode)
        |
        v
-   /plan-mode  ------------- CEO: is this the right problem?
-       |                     Eng: can we build it safely?
+   /plan-mode  ------------- auto-selects weight class from spec format:
+       |                       routine spec = eng mode only
+       |                       high-risk spec = CEO mode, then eng mode
        |
    coding begins
        |
@@ -247,7 +249,7 @@ Each skill owns one moment in the workflow. Invoke with `/skill-name` in Claude 
 | `/agent-principles` | Always active. The quality contract: evidence-first, no hedging. |
 | `/agent-orchestration` | You have 2+ independent tasks that can run in parallel. |
 | `/spec-writing` | First. Explore mode for brainstorming and research; structured mode for the 7-section spec. Required before plan-mode. |
-| `/plan-mode` | After spec-writing. CEO: right problem? Eng: can we build it safely? |
+| `/plan-mode` | After spec-writing. Auto-selects weight class: skip (task-mode specs), eng-only (routine), or CEO+eng (high-risk). |
 | `/tdd` | Writing any feature or test. Failing test first, always. |
 | `/debugging-protocol` | Something isn't working. Phase 1: schema first, trace back, fix. Phase 2: name the root cause, make recurrence structurally impossible. |
 | `/verification-workflow` | After any code change. Prove it works before moving on. |

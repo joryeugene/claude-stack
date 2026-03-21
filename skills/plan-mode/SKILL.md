@@ -1,13 +1,32 @@
 ---
 name: plan-mode
-description: CEO and engineering review after spec-writing. Takes the spec as input and evaluates whether the right problem was identified and whether it can be built safely. Run /spec-writing first.
+description: CEO and engineering review after spec-writing. Auto-selects weight class from the spec format (skip for task-mode, eng-only for routine, full CEO+eng for high-risk). Run /spec-writing first.
 ---
 
 # Plan Review
 
-Two cognitive modes that run before any significant work. CEO mode finds the right problem. Eng mode makes it buildable.
+Two cognitive modes that run before significant work. CEO mode finds the right problem. Eng mode makes it buildable. Not every task needs both.
 
-Use with `/plan-mode ceo` or `/plan-mode eng`. If no argument, ask which mode.
+Use with `/plan-mode ceo`, `/plan-mode eng`, or `/plan-mode` (auto-selects based on weight class).
+
+---
+
+## Weight Classes
+
+Match ceremony to risk. The spec determines the weight class, not developer comfort.
+
+| Weight | When | What runs | Gate |
+|--------|------|-----------|------|
+| **Skip** | Spec used task mode (4-line restatement). Local, single-file, well-understood. | Nothing. Go to code. | Spec restatement accepted. |
+| **Standard** | Spec used routine 7-section format. Multi-file but single-system, moderate risk. | **Eng mode only.** | Technical plan approved. |
+| **Full** | Spec used high-risk format (From/To/Reason/Impact). Cross-boundary, API-breaking, security-sensitive, multi-team. | **CEO mode, then Eng mode.** | Both plans approved. |
+
+When invoked without an argument, read the spec and auto-select:
+- If `docs/specs/` has no spec and the conversation contains a task-mode restatement: **Skip**. Tell the user plan-mode is not needed for this weight class.
+- If the spec exists and contains no From/To/Impact sections: **Standard**. Run eng mode only.
+- If the spec contains From/To/Impact sections or crosses system boundaries: **Full**. Run CEO mode first, then eng mode.
+
+The user can always override by specifying `/plan-mode ceo` or `/plan-mode eng` directly.
 
 ---
 
@@ -169,9 +188,13 @@ Precise and thorough. No hand-waving. Every claim backed by a file path or a dia
 
 ## The Hard Gate
 
-NO CODE until the design is approved. This is structural, not advisory.
+NO CODE until the design is approved at the appropriate weight class. This is structural, not advisory.
 
-The thought "this is too simple to need a design phase" is itself a rationalization. Simple tasks produce simple plans quickly. The gate costs minutes; skipping it costs hours when you discover the wrong thing was built correctly.
+- **Skip weight**: the spec-writing task-mode restatement IS the gate. No plan-mode artifact needed.
+- **Standard weight**: eng mode plan approved before code. CEO mode skipped.
+- **Full weight**: CEO mode approved, then eng mode approved, then code.
+
+The thought "this is too simple to need a design phase" is a rationalization when the spec required 7 sections. It is correct when the spec used task mode. The weight class makes the distinction explicit so neither over-planning nor under-planning depends on developer judgment in the moment.
 
 When the plan is approved and has multiple tasks:
 1. Execute in groups of 3 tasks maximum.
@@ -182,12 +205,16 @@ When the plan is approved and has multiple tasks:
 
 - Rubber-stamping plans. The point of CEO mode is to challenge them, not approve them.
 - Opining on architecture without reading the codebase first. Use Grep, Glob, Read aggressively.
-- Skipping CEO mode entirely because "the problem is obvious." The most expensive bugs are the ones where you built the wrong thing correctly.
+- Running full-weight ceremony on a task-mode spec. The weight class exists to prevent this. A single-file bug fix does not need CEO review.
+- Running skip-weight on a high-risk spec. If the spec has From/To/Impact sections, the work crosses boundaries and needs eng mode at minimum.
 - Skipping diagrams in eng mode. Hand-waving about architecture is not a plan. Force the assumptions into the open.
 - Skipping the 10-star version in CEO mode. Even when the final scope is modest, articulate what the vision would be.
 - Starting implementation without running `/ship-pipeline` when the work is ready to land.
 - Rationalizing past the hard gate. "Let me just start with this one file" is code before design. Stop.
+- Overriding the auto-selected weight class without stating why. The override is available, but the reason must be explicit.
 
 ## The Floor
 
-The biggest time waster in software is solving the wrong problem correctly. CEO mode exists to catch that failure before a line of code is written. Eng mode exists to make the chosen problem buildable without hidden surprises. Both modes are mandatory because "are we building the right thing?" and "are we building it right?" require different cognitive postures. Separate them deliberately.
+The biggest time waster in software is solving the wrong problem correctly. CEO mode exists to catch that failure before a line of code is written. Eng mode exists to make the chosen problem buildable without hidden surprises. These are different cognitive postures and they belong in separate passes.
+
+Not every task needs both passes. A routine change needs eng review. A task-mode fix needs neither. A cross-boundary migration needs both. The weight class system makes this decision structural: the spec's format determines the ceremony, so neither over-planning nor under-planning depends on willpower.

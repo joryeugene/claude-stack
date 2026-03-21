@@ -1,6 +1,6 @@
 ---
 name: spec-writing
-description: Use before starting any feature, task, or fix. Explore mode for brainstorming and research when direction is unclear. Structured mode for the 7-section spec once direction is set. Required before plan-mode.
+description: Use before starting any feature, task, or fix. Explore mode for brainstorming and research when direction is unclear. Task mode for concrete fixes. Structured mode for the 7-section spec. The spec format determines plan-mode's weight class.
 ---
 
 # Spec-Writing
@@ -130,7 +130,13 @@ After implementation, update the spec to reflect what was actually built. If exe
 
 ## After the Spec
 
-When all seven sections are written, the spec is the input to `/plan-mode`. CEO mode reads the spec to evaluate whether the right problem was identified. Eng mode reads the spec and designs the implementation. Do not invoke plan-mode before the spec exists.
+The spec format determines what happens next:
+
+- **Task mode** (4-line restatement): go straight to code. Plan-mode is not needed.
+- **Routine 7-section spec** (no From/To/Impact): `/plan-mode` runs eng mode only.
+- **High-risk spec** (From/To/Reason/Impact sections): `/plan-mode` runs CEO mode first, then eng mode.
+
+Do not invoke plan-mode before the spec exists. Plan mode evaluates a spec; it does not produce one.
 
 ---
 
