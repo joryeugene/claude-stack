@@ -10,7 +10,7 @@
     {
       "name": "tripod",
       "description": "Philosophy (CLAUDE.md), enforcement (hooks), and workflow (skills) for Claude Code.",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "author": {
         "name": "Jory Eugene",
         "url": "https://github.com/joryeugene"
